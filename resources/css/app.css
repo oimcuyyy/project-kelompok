@@ -1,0 +1,16 @@
+/* public/css/style.css */
+body {
+    background-color: #fffbeb;
+}
+
+.hero-banner {
+    background: linear-gradient(to right, #f59e0b, #ea580c);
+}
+
+.card-food {
+    transition: transform 0.3s ease, shadow 0.3s ease;
+}
+
+.card-food:hover {
+    transform: translateY(-5px);
+}
