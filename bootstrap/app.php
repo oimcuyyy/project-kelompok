@@ -20,10 +20,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         );
     })->create();
 
-// Arahkan storage ke /tmp saat berjalan di Vercel serverless
-if (isset($_ENV['APP_STORAGE']) || getenv('APP_STORAGE')) {
-    $storagePath = getenv('APP_STORAGE') ?: $_ENV['APP_STORAGE'];
-    $app->useStoragePath($storagePath);
-}
+// Override storage path ke /tmp/storage agar Laravel bisa menulis file di Vercel serverless
+$storagePath = getenv('APP_STORAGE') ?: '/tmp/storage';
+$app->useStoragePath($storagePath);
 
 return $app;
