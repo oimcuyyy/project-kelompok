@@ -24,19 +24,27 @@
     ],
     "env": {
         "APP_ENV": "production",
-        "APP_DEBUG": "true",
+        "APP_DEBUG": "false",
         "APP_KEY": "base64:v6FE2Mb/HSGukpWvLtUvKYUhb5ncDu0NHR67C8HLKvk=",
         "APP_URL": "https://project-kelompok.vercel.app",
+        "APP_MAINTENANCE_DRIVER": "file",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
         "APP_ROUTES_CACHE": "/tmp/routes.php",
         "APP_SERVICES_CACHE": "/tmp/services.php",
         "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
-        "CACHE_STORE": "array",
-        "SESSION_DRIVER": "cookie",
-        "LOG_CHANNEL": "stderr",
+        "CACHE_STORE": "file",
+        "CACHE_DRIVER": "file",
+        "SESSION_DRIVER": "file",
+        "LOG_CHANNEL": "single",
         "DB_CONNECTION": "sqlite",
-        "DB_DATABASE": "/tmp/database.sqlite"
+        "DB_DATABASE": "/tmp/database.sqlite",
+        "BROADCAST_CONNECTION": "log",
+        "BROADCAST_DRIVER": "log",
+        "FILESYSTEM_DISK": "local",
+        "FILESYSTEM_DRIVER": "local",
+        "QUEUE_CONNECTION": "sync",
+        "MAIL_MAILER": "log"
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-// Tampilkan semua error
+// Tampilkan semua error saat debug
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
@@ -44,12 +44,35 @@ if (!file_exists($targetDb) || filesize($targetDb) === 0) {
     }
 }
 
-// Set environment variables
-$_ENV['APP_STORAGE'] = '/tmp/storage';
-putenv('APP_STORAGE=/tmp/storage');
-$_ENV['DB_DATABASE'] = '/tmp/database.sqlite';
-putenv('DB_DATABASE=/tmp/database.sqlite');
-$_SERVER['DB_DATABASE'] = '/tmp/database.sqlite';
+// Inisialisasi seluruh environment variable driver secara eksplisit
+$envVars = [
+    'APP_STORAGE' => '/tmp/storage',
+    'APP_CONFIG_CACHE' => '/tmp/config.php',
+    'APP_EVENTS_CACHE' => '/tmp/events.php',
+    'APP_PACKAGES_CACHE' => '/tmp/packages.php',
+    'APP_ROUTES_CACHE' => '/tmp/routes.php',
+    'APP_SERVICES_CACHE' => '/tmp/services.php',
+    'VIEW_COMPILED_PATH' => '/tmp/storage/framework/views',
+    'DB_DATABASE' => '/tmp/database.sqlite',
+    'DB_CONNECTION' => 'sqlite',
+    'SESSION_DRIVER' => 'file',
+    'CACHE_STORE' => 'file',
+    'CACHE_DRIVER' => 'file',
+    'LOG_CHANNEL' => 'single',
+    'BROADCAST_CONNECTION' => 'log',
+    'BROADCAST_DRIVER' => 'log',
+    'FILESYSTEM_DISK' => 'local',
+    'FILESYSTEM_DRIVER' => 'local',
+    'QUEUE_CONNECTION' => 'sync',
+    'MAIL_MAILER' => 'log',
+    'APP_MAINTENANCE_DRIVER' => 'file',
+];
+
+foreach ($envVars as $key => $val) {
+    $_ENV[$key] = $val;
+    $_SERVER[$key] = $val;
+    putenv("{$key}={$val}");
+}
 
 try {
     require dirname(__DIR__) . '/public/index.php';
