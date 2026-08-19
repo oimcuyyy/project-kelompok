@@ -2,6 +2,7 @@
     "version": 2,
     "framework": null,
     "outputDirectory": "public",
+    "installCommand": "composer install --no-dev --optimize-autoloader --no-interaction && npm install",
     "buildCommand": "npm run build",
     "functions": {
         "api/index.php": {
@@ -26,6 +27,7 @@
         "APP_ENV": "production",
         "APP_DEBUG": "false",
         "APP_KEY": "base64:v6FE2Mb/HSGukpWvLtUvKYUhb5ncDu0NHR67C8HLKvk=",
+        "APP_URL": "https://project-kelompok.vercel.app",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
