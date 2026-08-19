@@ -1,8 +1,5 @@
 {
     "version": 2,
-    "framework": null,
-    "outputDirectory": "public",
-    "buildCommand": "npm run build",
     "functions": {
         "api/index.php": {
             "runtime": "vercel-php@0.7.2"
@@ -14,7 +11,7 @@
             "dest": "/public/build/$1"
         },
         {
-            "src": "/(favicon.svg|favicon.ico|robots.txt|css/.*|js/.*)",
+            "src": "/(favicon\\.svg|favicon\\.ico|robots\\.txt)",
             "dest": "/public/$1"
         },
         {
@@ -24,9 +21,9 @@
     ],
     "env": {
         "APP_ENV": "production",
-        "APP_DEBUG": "false",
+        "APP_DEBUG": "true",
         "APP_KEY": "base64:v6FE2Mb/HSGukpWvLtUvKYUhb5ncDu0NHR67C8HLKvk=",
-        "APP_URL": "https://project-kelompok-git-main-oimcuyyy1.vercel.app",
+        "APP_URL": "https://project-kelompok.vercel.app",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
