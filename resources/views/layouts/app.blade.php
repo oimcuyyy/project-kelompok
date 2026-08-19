@@ -8,9 +8,8 @@
     <title>@yield('title', 'DapurKuliner - Rumah Resep & Cita Rasa Nusantara')</title>
 
     <!-- Favicon Logo DapurKuliner -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f59e0b'/%3E%3Cstop offset='50%25' stop-color='%23ea580c'/%3E%3Cstop offset='100%25' stop-color='%239a3412'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='128' fill='url(%23g)'/%3E%3Cg fill='%23ffffff' transform='translate(100,100) scale(0.61)'%3E%3Cpath d='M120 40 C120 20 100 20 100 40 L100 160 C100 190 120 210 150 210 L150 460 C150 480 170 480 170 460 L170 210 C200 210 220 190 220 160 L220 40 C220 20 200 20 200 40 L200 130 C200 140 190 150 180 150 L180 40 C180 20 160 20 160 40 L160 150 C150 150 140 140 140 130 L140 40 C140 20 120 20 120 40 Z'/%3E%3Cpath d='M350 40 C320 60 300 120 300 200 C300 215 310 225 325 225 L340 225 L340 460 C340 480 360 480 360 460 L360 40 C360 25 355 35 350 40 Z'/%3E%3Cpath d='M255 30 C205 30 190 85 190 140 C190 195 220 215 245 220 L245 460 C245 480 265 480 265 460 L265 220 C290 215 320 195 320 140 C320 85 305 30 255 30 Z'/%3E%3C/g%3E%3C/svg%3E">
     <link rel="alternate icon" href="{{ asset('favicon.svg') }}">
-    <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}">
 
     <!-- Google Fonts: Plus Jakarta Sans & Playfair Display (Aesthetic Resto) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
