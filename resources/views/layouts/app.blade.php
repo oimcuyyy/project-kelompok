@@ -49,6 +49,28 @@
 </head>
 <body class="bg-[#faf5ee] text-[#292524] font-sans flex flex-col min-h-screen antialiased">
 
+    @if(session('is_admin'))
+        <!-- Admin Floating Bar -->
+        <div class="bg-gradient-to-r from-[#2a170d] via-[#431407] to-[#2a170d] text-amber-100 text-xs px-4 py-2 shadow-lg border-b border-amber-500/40 sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="bg-amber-500 text-[#180e08] font-black px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider shadow-sm">👑 ADMIN MODE</span>
+                    <span class="hidden sm:inline text-amber-200/90 font-medium">Selamat datang, Anda memiliki akses kelola & edit resep.</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('recipes.create') }}" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold px-3.5 py-1 rounded-full text-xs transition shadow flex items-center gap-1.5 border border-amber-400/30">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>Tulis Resep</span>
+                    </a>
+                    <a href="{{ route('admin.logout') }}" class="bg-[#180e08]/70 hover:bg-rose-950/80 text-amber-300 hover:text-rose-200 px-3 py-1 rounded-full text-xs font-bold transition border border-amber-700/50 flex items-center gap-1">
+                        <i class="fa-solid fa-right-from-bracket text-[10px]"></i>
+                        <span>Keluar Admin</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Header / Navbar Resto -->
     @include('layouts.partials.navbar')
 

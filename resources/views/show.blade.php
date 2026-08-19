@@ -112,17 +112,21 @@
                 </div>
 
                 @if(session('is_admin'))
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2.5">
                         <a href="{{ route('recipes.create') }}" class="text-xs font-black uppercase tracking-wider text-amber-800 hover:text-amber-950 flex items-center gap-1 bg-[#faf5ee] border border-[#d9c7b0] px-3.5 py-2 rounded-full shadow-xs">
                             <i class="fa-solid fa-plus text-amber-700"></i>
                             <span>+ Tulis Resep</span>
                         </a>
+                        <a href="{{ route('recipes.edit', $recipe->id) }}" class="text-xs font-black uppercase tracking-wider text-amber-900 hover:text-amber-950 flex items-center gap-1 bg-amber-100 hover:bg-amber-200 border border-amber-300 px-3.5 py-2 rounded-full shadow-xs transition">
+                            <i class="fa-solid fa-pen-to-square text-amber-800"></i>
+                            <span>Edit Resep</span>
+                        </a>
                         <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus resep \'{{ addslashes($recipe->title) }}\' ini? Tindakan ini tidak dapat dibatalkan.');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-xs font-bold uppercase tracking-wider text-rose-600 hover:text-rose-800 bg-rose-50 border border-rose-200 px-3.5 py-2 rounded-full transition flex items-center gap-1">
+                            <button type="submit" class="text-xs font-bold uppercase tracking-wider text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3.5 py-2 rounded-full transition flex items-center gap-1">
                                 <i class="fa-solid fa-trash-can"></i>
-                                <span>Hapus Menu</span>
+                                <span>Hapus</span>
                             </button>
                         </form>
                     </div>

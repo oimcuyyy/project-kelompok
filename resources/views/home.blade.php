@@ -207,6 +207,22 @@
                                     <i class="fa-solid fa-fire text-amber-600 mr-1"></i> Teruji
                                 </span>
                             </div>
+
+                            @if(session('is_admin'))
+                                <!-- Quick Admin Actions on Card -->
+                                <div class="mt-3 pt-3 border-t border-amber-100 flex items-center justify-between gap-2" onclick="event.stopPropagation();">
+                                    <a href="{{ route('recipes.edit', $recipe->id) }}" class="flex-1 text-center bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-black uppercase py-1.5 rounded-xl border border-amber-300 transition">
+                                        <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
+                                    </a>
+                                    <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST" class="inline" onsubmit="return confirm('Hapus resep \'{{ addslashes($recipe->title) }}\'?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold uppercase py-1.5 rounded-xl border border-rose-200 transition">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </a>

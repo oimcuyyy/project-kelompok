@@ -31,14 +31,14 @@ Route::get('/', function (Request $request) {
 // Form Tambah Resep Baru (Khusus Admin)
 Route::get('/recipes/create', function () {
     if (!session('is_admin')) {
-        return redirect()->route('home')->with('error', 'Akses terbatas! Hanya Admin yang dapat menambah resep. Tekan shortcut Ctrl + Shift + L untuk masuk mode admin.');
+        return redirect()->route('home', ['admin' => 1])->with('error', 'Akses terbatas! Hanya Admin yang dapat menambah resep.');
     }
 
     $categories = ['Nusantara', 'Western', 'Asia', 'Sehat', 'Kue & Dessert', 'Minuman'];
     return view('create', compact('categories'));
 })->name('recipes.create');
 
-// Simpan Resep (Khusus Admin)
+// Simpan Resep Baru (Khusus Admin)
 Route::post('/recipes', function (Request $request) {
     if (!session('is_admin')) {
         return redirect()->route('home')->with('error', 'Akses ditolak! Anda harus masuk sebagai Admin terlebih dahulu.');
@@ -66,6 +66,48 @@ Route::post('/recipes', function (Request $request) {
 
     return redirect()->route('recipes.show', $recipe->id)->with('success', 'Resep berhasil dipublikasikan oleh Admin!');
 })->name('recipes.store');
+
+// Form Edit Resep (Khusus Admin)
+Route::get('/recipes/{id}/edit', function ($id) {
+    if (!session('is_admin')) {
+        return redirect()->route('home', ['admin' => 1])->with('error', 'Akses terbatas! Hanya Admin yang dapat mengedit resep.');
+    }
+
+    $recipe = Recipe::findOrFail($id);
+    $categories = ['Nusantara', 'Western', 'Asia', 'Sehat', 'Kue & Dessert', 'Minuman'];
+    return view('edit', compact('recipe', 'categories'));
+})->name('recipes.edit');
+
+// Update Resep (Khusus Admin)
+Route::put('/recipes/{id}', function (Request $request, $id) {
+    if (!session('is_admin')) {
+        return redirect()->route('home')->with('error', 'Akses ditolak! Anda harus masuk sebagai Admin terlebih dahulu.');
+    }
+
+    $recipe = Recipe::findOrFail($id);
+
+    $validated = $request->validate([
+        'title'        => 'required|string|max:255',
+        'category'     => 'required|string|max:100',
+        'cooking_time' => 'required|integer|min:1|max:1440',
+        'image'        => 'required|url',
+        'description'  => 'required|string|max:2000',
+        'ingredients'  => 'nullable|string',
+        'steps'        => 'nullable|string',
+    ], [
+        'title.required'        => 'Judul resep wajib diisi.',
+        'category.required'     => 'Kategori resep wajib dipilih.',
+        'cooking_time.required' => 'Waktu memasak wajib diisi.',
+        'cooking_time.min'      => 'Waktu memasak minimal 1 menit.',
+        'image.required'        => 'URL gambar wajib diisi.',
+        'image.url'             => 'Format URL gambar tidak valid (contoh: https://...).',
+        'description.required'  => 'Deskripsi resep wajib diisi.',
+    ]);
+
+    $recipe->update($validated);
+
+    return redirect()->route('recipes.show', $recipe->id)->with('success', 'Resep berhasil diperbarui oleh Admin!');
+})->name('recipes.update');
 
 // Hapus Resep (Khusus Admin)
 Route::delete('/recipe/{id}', function ($id) {

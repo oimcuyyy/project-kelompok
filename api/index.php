@@ -1,9 +1,8 @@
 <?php
 
 // Tampilkan semua error saat debug
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
+ini_set('display_errors', '0');
+error_reporting(E_ALL & ~E_DEPRECATED);
 
 // Set timezone
 date_default_timezone_set('Asia/Jakarta');
@@ -55,9 +54,10 @@ $envVars = [
     'VIEW_COMPILED_PATH' => '/tmp/storage/framework/views',
     'DB_DATABASE' => '/tmp/database.sqlite',
     'DB_CONNECTION' => 'sqlite',
-    'SESSION_DRIVER' => 'file',
-    'CACHE_STORE' => 'file',
-    'CACHE_DRIVER' => 'file',
+    'SESSION_DRIVER' => 'cookie',
+    'SESSION_LIFETIME' => '10080',
+    'CACHE_STORE' => 'array',
+    'CACHE_DRIVER' => 'array',
     'LOG_CHANNEL' => 'single',
     'BROADCAST_CONNECTION' => 'log',
     'BROADCAST_DRIVER' => 'log',
