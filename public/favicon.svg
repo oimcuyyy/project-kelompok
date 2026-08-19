@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="restoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="50%" stop-color="#ea580c" />
+      <stop offset="100%" stop-color="#9a3412" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Background Rounded Platter -->
+  <rect x="24" y="24" width="464" height="464" rx="128" fill="url(#restoGrad)" filter="url(#shadow)" stroke="#fde68a" stroke-width="8" stroke-opacity="0.5" />
+  
+  <!-- Subtle Inner Ring -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#ffffff" stroke-width="6" stroke-dasharray="12 12" stroke-opacity="0.3" />
+
+  <!-- Chef Hat / Cloche & Utensils Icon -->
+  <g fill="#ffffff" transform="translate(100, 100) scale(0.61)">
+    <!-- Fork -->
+    <path d="M120 40 C120 20 100 20 100 40 L100 160 C100 190 120 210 150 210 L150 460 C150 480 170 480 170 460 L170 210 C200 210 220 190 220 160 L220 40 C220 20 200 20 200 40 L200 130 C200 140 190 150 180 150 L180 40 C180 20 160 20 160 40 L160 150 C150 150 140 140 140 130 L140 40 C140 20 120 20 120 40 Z" fill="#ffffff" />
+    
+    <!-- Knife -->
+    <path d="M350 40 C320 60 300 120 300 200 C300 215 310 225 325 225 L340 225 L340 460 C340 480 360 480 360 460 L360 40 C360 25 355 35 350 40 Z" fill="#ffffff" />
+    
+    <!-- Spoon in Center -->
+    <path d="M255 30 C205 30 190 85 190 140 C190 195 220 215 245 220 L245 460 C245 480 265 480 265 460 L265 220 C290 215 320 195 320 140 C320 85 305 30 255 30 Z" fill="#ffffff" opacity="0.95" />
+  </g>
+
+  <!-- Sparkle Stars -->
+  <path d="M390 100 L395 115 L410 120 L395 125 L390 140 L385 125 L370 120 L385 115 Z" fill="#fef08a" />
+  <path d="M110 370 L115 385 L130 390 L115 395 L110 410 L105 395 L90 390 L105 385 Z" fill="#fef08a" />
+</svg>

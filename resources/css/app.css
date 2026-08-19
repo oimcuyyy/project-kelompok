@@ -1,16 +1,214 @@
-/* public/css/style.css */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap');
+
+:root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --resto-dark: #1b120c;
+    --resto-mahogany: #2b170e;
+    --resto-wood: #431407;
+    --resto-amber: #d97706;
+    --resto-gold: #f59e0b;
+    --resto-cream: #faf5ee;
+    --resto-card: #ffffff;
+    --resto-border: #e8ded2;
+}
+
 body {
-    background-color: #fffbeb;
+    font-family: var(--font-sans);
+    background-color: var(--resto-cream);
+    color: #292524;
+    scroll-behavior: smooth;
 }
 
-.hero-banner {
-    background: linear-gradient(to right, #f59e0b, #ea580c);
+.font-serif-title {
+    font-family: var(--font-serif);
 }
 
-.card-food {
-    transition: transform 0.3s ease, shadow 0.3s ease;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+}
+::-webkit-scrollbar-track {
+    background: #f5ede2;
+}
+::-webkit-scrollbar-thumb {
+    background: #c7b299;
+    border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #a3896c;
 }
 
-.card-food:hover {
-    transform: translateY(-5px);
+/* Hero Section Resto Ambience */
+.resto-hero {
+    background: linear-gradient(145deg, #180e07 0%, #29160a 40%, #431407 80%, #2c1206 100%) !important;
+    position: relative;
+    overflow: hidden;
+    color: #ffffff !important;
+}
+
+.resto-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+    pointer-events: none;
+}
+
+.resto-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    background-image: radial-gradient(#ffffff 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+}
+
+/* Restaurant Menu Card Platter */
+.resto-card {
+    background-color: #ffffff;
+    border: 1px solid var(--resto-border);
+    border-radius: 20px;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.resto-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 20px 30px -10px rgba(67, 20, 7, 0.15), 0 8px 12px -6px rgba(67, 20, 7, 0.08);
+    border-color: #d97706;
+}
+
+.resto-card-img {
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.resto-card:hover .resto-card-img {
+    transform: scale(1.08);
+}
+
+/* Category Badges / Resto Seals */
+.badge-nusantara {
+    background-color: #7f1d1d;
+    color: #fef2f2;
+    border: 1px solid #991b1b;
+}
+.badge-western {
+    background-color: #78350f;
+    color: #fef3c7;
+    border: 1px solid #92400e;
+}
+.badge-asia {
+    background-color: #1e1b4b;
+    color: #e0e7ff;
+    border: 1px solid #312e81;
+}
+.badge-sehat {
+    background-color: #14532d;
+    color: #dcfce7;
+    border: 1px solid #166534;
+}
+.badge-dessert {
+    background-color: #701a75;
+    color: #fdf4ff;
+    border: 1px solid #86198f;
+}
+.badge-minuman {
+    background-color: #0c4a6e;
+    color: #e0f2fe;
+    border: 1px solid #075985;
+}
+.badge-default {
+    background-color: #431407;
+    color: #ffedd5;
+    border: 1px solid #7c2d12;
+}
+
+/* Resto Menu Tabs */
+.resto-tab {
+    transition: all 0.25s ease;
+    border: 1px solid #e7dcd0;
+}
+
+.resto-tab.active {
+    background: linear-gradient(135deg, #ea580c 0%, #d97706 100%);
+    color: #ffffff;
+    border-color: #ea580c;
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+}
+
+.resto-tab:not(.active):hover {
+    background-color: #f5ede2;
+    color: #9a3412;
+    border-color: #d7c3ac;
+}
+
+/* Interactive Checklist for Ingredients */
+.ingredient-item {
+    transition: all 0.2s ease;
+    user-select: none;
+    cursor: pointer;
+}
+
+.ingredient-item.checked {
+    text-decoration: line-through;
+    opacity: 0.5;
+    color: #a8a29e;
+}
+
+.ingredient-checkbox {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #d6c7b2;
+    border-radius: 6px;
+    outline: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    background-color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ingredient-checkbox:checked {
+    background-color: #ea580c;
+    border-color: #ea580c;
+}
+
+.ingredient-checkbox:checked::after {
+    content: '✓';
+    color: white;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+/* Step Cooking Cards */
+.step-card {
+    transition: all 0.25s ease;
+    border-left: 4px solid #ea580c;
+}
+
+.step-card:hover {
+    background-color: #fdf6ec;
+}
+
+/* Image Preview Container */
+.image-preview-wrapper {
+    min-height: 220px;
+    background: #fdfbf7;
+    border: 2px dashed #d6c7b2;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
 }
