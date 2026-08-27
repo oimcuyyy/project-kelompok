@@ -1,24 +1,13 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Dashboard Admin & Pesanan')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="mb-8 flex items-center justify-between">
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-black font-serif text-[#29170e]">Dashboard & Riwayat Pesanan</h1>
-            <p class="text-stone-600 mt-2">Kelola pesanan pelanggan dan verifikasi pembayaran transfer.</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <a href="{{ route('recipes.create') }}" class="text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-700 transition flex items-center gap-1.5 px-4 py-2 rounded-full shadow-xs">
-                <i class="fa-solid fa-plus"></i> Tambah Menu
-            </a>
-            <a href="{{ route('home') }}" class="text-xs font-bold uppercase tracking-wider text-[#431407] hover:text-amber-700 transition flex items-center gap-1.5 bg-white border border-[#d9c7b0] px-4 py-2 rounded-full shadow-xs">
-                <i class="fa-solid fa-store"></i> Halaman Depan
-            </a>
-            <a href="{{ route('admin.logout') }}" class="text-xs font-bold uppercase tracking-wider text-red-600 hover:text-red-700 transition flex items-center gap-1.5 bg-red-50 border border-red-200 px-4 py-2 rounded-full shadow-xs">
-                <i class="fa-solid fa-right-from-bracket"></i> Keluar
-            </a>
+            <h1 class="text-2xl sm:text-3xl font-black font-serif text-[#29170e]">Dashboard & Riwayat Pesanan</h1>
+            <p class="text-stone-600 mt-2 text-sm sm:text-base">Kelola pesanan pelanggan dan verifikasi pembayaran transfer.</p>
         </div>
     </div>
 

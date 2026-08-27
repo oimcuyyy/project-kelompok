@@ -52,36 +52,8 @@
 </head>
 <body class="bg-[#faf5ee] text-[#292524] font-sans flex flex-col min-h-screen antialiased" x-data="kasirApp()">
 
-    @if(session('is_admin'))
-        <!-- Admin Floating Bar -->
-        <div class="bg-gradient-to-r from-[#2a170d] via-[#431407] to-[#2a170d] text-amber-100 text-xs px-4 py-2 shadow-lg border-b border-amber-500/40 sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <span class="bg-amber-500 text-[#180e08] font-black px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider shadow-sm">👑 ADMIN MODE</span>
-                    <span class="hidden sm:inline text-amber-200/90 font-medium">Selamat datang, Anda memiliki akses kelola & edit menu.</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <a href="{{ route('transactions.index') }}" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold px-3.5 py-1 rounded-full text-xs transition shadow flex items-center gap-1.5 border border-emerald-400/30">
-        <i class="fa-solid fa-file-invoice text-[10px]"></i>
-        <span>Riwayat Transaksi</span>
-    </a>
-    <a href="{{ route('recipes.create') }}" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold px-3.5 py-1 rounded-full text-xs transition shadow flex items-center gap-1.5 border border-amber-400/30">
-                        <i class="fa-solid fa-plus text-[10px]"></i>
-                        <span>Tulis Menu</span>
-                    </a>
-                    <a href="{{ route('admin.logout') }}" class="bg-[#180e08]/70 hover:bg-rose-950/80 text-amber-300 hover:text-rose-200 px-3 py-1 rounded-full text-xs font-bold transition border border-amber-700/50 flex items-center gap-1">
-                        <i class="fa-solid fa-right-from-bracket text-[10px]"></i>
-                        <span>Keluar Admin</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    @endif
-
     <!-- Header / Navbar Resto -->
-    @if(!request()->routeIs('transactions.index') && !request()->routeIs('recipes.create') && !request()->routeIs('recipes.edit'))
-        @include('layouts.partials.navbar')
-    @endif
+    @include('layouts.partials.navbar')
 
     <!-- Main Content Area -->
     <main class="flex-grow">
@@ -89,12 +61,9 @@
     </main>
 
     <!-- Footer Resto -->
-    @if(!request()->routeIs('transactions.index') && !request()->routeIs('recipes.create') && !request()->routeIs('recipes.edit'))
-        @include('layouts.partials.footer')
-    @endif
+    @include('layouts.partials.footer')
 
-    @if(!request()->routeIs('transactions.index') && !request()->routeIs('recipes.create') && !request()->routeIs('recipes.edit'))
-        <!-- Floating Cart Button -->
+    <!-- Floating Cart Button -->
     <button 
         x-show="cart.length > 0" 
         x-transition.scale.origin.bottom.right
@@ -324,7 +293,7 @@
                                 
                                 <div class="mt-2">
                                     <label class="block text-xs font-bold text-blue-900 mb-1">Unggah Bukti Transfer</label>
-                                    <input type="file" id="transferProofInput" @change="transferProof = $event.target.files[0]" accept="image/*" class="w-full text-xs text-stone-600 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200">
+                                    <input type="file" id="transferProofInput" @change="handleFileUpload($event)" accept="image/*" class="w-full text-xs text-stone-600 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200">
                                 </div>
                             </div>
                         </div>
@@ -339,7 +308,7 @@
                                 
                                 <div class="mt-2 text-left">
                                     <label class="block text-xs font-bold text-purple-900 mb-1">Unggah Bukti Pembayaran QRIS</label>
-                                    <input type="file" id="qrisProofInput" @change="transferProof = $event.target.files[0]" accept="image/*" class="w-full text-xs text-stone-600 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200">
+                                    <input type="file" id="qrisProofInput" @change="handleFileUpload($event)" accept="image/*" class="w-full text-xs text-stone-600 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200">
                                 </div>
                             </div>
                         </div>
@@ -368,8 +337,6 @@
         </div>
     </div>
 
-    @endif
-
     <!-- Alpine.js Script Logic -->
     <script>
         document.addEventListener('alpine:init', () => {
@@ -388,6 +355,76 @@
                 init() {
                     this.$watch('cart', value => {
                         localStorage.setItem('kasir_cart', JSON.stringify(value));
+                    });
+                },
+
+                // Fungsi Kompresi Gambar (Client-Side) agar ukuran file yang diupload HP tidak Error 413
+                async handleFileUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    if (!file.type.startsWith('image/')) {
+                        this.transferProof = file;
+                        return;
+                    }
+
+                    // Tampilkan loading saat kompresi
+                    const originalSize = (file.size / 1024 / 1024).toFixed(2);
+                    
+                    try {
+                        const compressedFile = await this.compressImage(file, 800, 0.7); // max 800px width/height, 70% quality
+                        this.transferProof = compressedFile;
+                    } catch (error) {
+                        console.error('Compression error:', error);
+                        this.transferProof = file; // Fallback ke file original
+                    }
+                },
+
+                compressImage(file, maxDimension, quality) {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = event => {
+                            const img = new Image();
+                            img.src = event.target.result;
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                let width = img.width;
+                                let height = img.height;
+
+                                if (width > height) {
+                                    if (width > maxDimension) {
+                                        height *= maxDimension / width;
+                                        width = maxDimension;
+                                    }
+                                } else {
+                                    if (height > maxDimension) {
+                                        width *= maxDimension / height;
+                                        height = maxDimension;
+                                    }
+                                }
+
+                                canvas.width = width;
+                                canvas.height = height;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, width, height);
+
+                                canvas.toBlob(blob => {
+                                    if(blob) {
+                                        // Buat File object baru dari blob
+                                        const newFile = new File([blob], file.name, {
+                                            type: file.type,
+                                            lastModified: Date.now()
+                                        });
+                                        resolve(newFile);
+                                    } else {
+                                        reject(new Error("Canvas toBlob failed"));
+                                    }
+                                }, file.type, quality);
+                            };
+                            img.onerror = error => reject(error);
+                        };
+                        reader.onerror = error => reject(error);
                     });
                 },
 
@@ -543,7 +580,23 @@
                             body: formData
                         });
                         
-                        const result = await response.json();
+                        if (response.status === 413) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: 'Ukuran foto bukti pembayaran terlalu besar. Mohon perkecil ukuran foto Anda.',
+                                confirmButtonColor: '#d97706'
+                            });
+                            return;
+                        }
+
+                        let result;
+                        try {
+                            result = await response.json();
+                        } catch (e) {
+                            throw new Error('Respon server tidak valid atau terjadi error sistem.');
+                        }
+                        
                         if (result.success) {
                             Swal.fire({
                                 icon: 'success',
@@ -564,7 +617,7 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal',
-                                text: 'Gagal melakukan pesanan.',
+                                text: result.message || 'Gagal melakukan pesanan.',
                                 confirmButtonColor: '#d97706'
                             });
                         }
@@ -573,7 +626,7 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'Terjadi kesalahan sistem.',
+                            text: 'Terjadi kesalahan sistem atau ukuran file terlalu besar untuk server.',
                             confirmButtonColor: '#d97706'
                         });
                     }
