@@ -226,29 +226,33 @@ Route::post('/api/checkout', function (Request $request) {
     // Buat order baru
     $status = ($paymentMethod === 'Tunai') ? 'success' : 'pending';
 
-    $order = \App\Models\Order::create([
-        'total_price' => $totalPrice,
-        'status' => $status,
-        'customer_name' => $customerName,
-        'order_type' => $orderType,
-        'table_number' => $tableNumber,
-        'payment_method' => $paymentMethod,
-        'cash_received' => $cashReceived,
-        'change' => $change,
-        'transfer_proof' => $proofPath,
-    ]);
-
-    // Masukkan order items
-    foreach ($cart as $item) {
-        \App\Models\OrderItem::create([
-            'order_id' => $order->id,
-            'recipe_id' => $item['id'],
-            'quantity' => $item['quantity'],
-            'price' => $item['price'],
+    try {
+        $order = \App\Models\Order::create([
+            'total_price' => $totalPrice,
+            'status' => $status,
+            'customer_name' => $customerName,
+            'order_type' => $orderType,
+            'table_number' => $tableNumber,
+            'payment_method' => $paymentMethod,
+            'cash_received' => $cashReceived,
+            'change' => $change,
+            'transfer_proof' => $proofPath,
         ]);
+        
+        // Masukkan order items
+        foreach ($cart as $item) {
+            \App\Models\OrderItem::create([
+                'order_id' => $order->id,
+                'recipe_id' => $item['id'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+            ]);
+        }
+    
+        return response()->json(['success' => true, 'order_id' => $order->id]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => 'DB Error: ' . $e->getMessage()], 500);
     }
-
-    return response()->json(['success' => true, 'order_id' => $order->id]);
 });
 
 // Halaman Riwayat Transaksi (Khusus Admin)

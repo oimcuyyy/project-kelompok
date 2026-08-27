@@ -32,7 +32,7 @@ foreach ($dirs as $dir) {
 
 // Salin database SQLite ke /tmp jika belum ada
 $sourceDb = dirname(__DIR__) . '/database/database.sqlite';
-$targetDb = '/tmp/database.sqlite';
+$targetDb = '/tmp/database_v2.sqlite';
 if (!file_exists($targetDb) || filesize($targetDb) === 0) {
     if (file_exists($sourceDb)) {
         @copy($sourceDb, $targetDb);
@@ -52,7 +52,7 @@ $envVars = [
     'APP_ROUTES_CACHE' => '/tmp/routes.php',
     'APP_SERVICES_CACHE' => '/tmp/services.php',
     'VIEW_COMPILED_PATH' => '/tmp/storage/framework/views',
-    'DB_DATABASE' => '/tmp/database.sqlite',
+    'DB_DATABASE' => '/tmp/database_v2.sqlite',
     'DB_CONNECTION' => 'sqlite',
     'SESSION_DRIVER' => 'cookie',
     'SESSION_LIFETIME' => '10080',
