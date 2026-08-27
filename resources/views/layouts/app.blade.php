@@ -50,7 +50,7 @@
     <!-- Vite Assets (CSS & JS) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-[#faf5ee] text-[#292524] font-sans flex flex-col min-h-screen antialiased" x-data="kasirApp()">
+<body class="font-sans antialiased bg-[#fdfaf5] text-stone-800 flex flex-col min-h-screen selection:bg-amber-500 selection:text-white" x-data="kasirApp()" @keydown.window.ctrl.shift.l.prevent="toggleAdminModal()">
 
     <!-- Header / Navbar Resto -->
     @include('layouts.partials.navbar')
