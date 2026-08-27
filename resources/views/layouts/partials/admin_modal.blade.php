@@ -125,9 +125,16 @@
             box.classList.add('scale-95', 'opacity-0');
         }
         setTimeout(() => {
-            modal.classList.add('hidden');
             modal.classList.remove('flex');
-        }, 200);
+            modal.classList.add('hidden');
+            
+            // Clean up URL if it has ?admin=1
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('admin')) {
+                url.searchParams.delete('admin');
+                window.history.replaceState({}, '', url);
+            }
+        }, 300);
     }
 
     function toggleAdminModal() {
@@ -172,6 +179,60 @@
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     closeAdminModal();
+                }
+            });
+        }
+        
+        // Handle AJAX Login
+        const loginForm = document.getElementById('admin-login-form');
+        if (loginForm) {
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const btn = document.getElementById('admin-submit-btn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+                btn.disabled = true;
+                
+                try {
+                    const formData = new FormData(loginForm);
+                    const response = await fetch(loginForm.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: 1000
+                        }).then(() => {
+                            window.location.href = data.redirect;
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: data.message || 'Kata sandi salah.'
+                        });
+                        btn.innerHTML = originalHtml;
+                        btn.disabled = false;
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error Server',
+                        text: 'Terjadi kesalahan sistem. Coba lagi.'
+                    });
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
                 }
             });
         }

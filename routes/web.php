@@ -39,7 +39,7 @@ Route::get('/menu', function (Request $request) {
 
 // Form Tambah Resep Baru (Khusus Admin)
 Route::get('/recipes/create', function () {
-    if (!session('is_admin')) {
+    if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) {
         return redirect()->route('home', ['admin' => 1])->with('error', 'Akses terbatas! Hanya Admin yang dapat menambah resep.');
     }
 
@@ -49,7 +49,7 @@ Route::get('/recipes/create', function () {
 
 // Simpan Resep Baru (Khusus Admin)
 Route::post('/recipes', function (Request $request) {
-    if (!session('is_admin')) {
+    if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) {
         return redirect()->route('home')->with('error', 'Akses ditolak! Anda harus masuk sebagai Admin terlebih dahulu.');
     }
 
@@ -78,7 +78,7 @@ Route::post('/recipes', function (Request $request) {
 
 // Form Edit Resep (Khusus Admin)
 Route::get('/recipes/{id}/edit', function ($id) {
-    if (!session('is_admin')) {
+    if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) {
         return redirect()->route('home', ['admin' => 1])->with('error', 'Akses terbatas! Hanya Admin yang dapat mengedit resep.');
     }
 
@@ -89,7 +89,7 @@ Route::get('/recipes/{id}/edit', function ($id) {
 
 // Update Resep (Khusus Admin)
 Route::put('/recipes/{id}', function (Request $request, $id) {
-    if (!session('is_admin')) {
+    if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) {
         return redirect()->route('home')->with('error', 'Akses ditolak! Anda harus masuk sebagai Admin terlebih dahulu.');
     }
 
@@ -120,7 +120,7 @@ Route::put('/recipes/{id}', function (Request $request, $id) {
 
 // Hapus Resep (Khusus Admin)
 Route::delete('/recipe/{id}', function ($id) {
-    if (!session('is_admin')) {
+    if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) {
         return redirect()->back()->with('error', 'Akses ditolak! Hanya Admin yang dapat menghapus resep.');
     }
 
@@ -166,9 +166,9 @@ Route::post('/admin/login', function (Request $request) {
         session(['is_admin' => true]);
 
         if ($request->ajax() || $request->wantsJson()) {
-            return response()->json(['success' => true, 'message' => 'Berhasil masuk sebagai Admin!', 'redirect' => route('transactions.index')]);
+            return response()->json(['success' => true, 'message' => 'Berhasil masuk sebagai Admin!', 'redirect' => route('transactions.index')])->cookie('is_admin_vercel', 'true', 10080);
         }
-        return redirect()->route('transactions.index')->with('success', 'Selamat datang di Dashboard Admin!');
+        return redirect()->route('transactions.index')->cookie('is_admin_vercel', 'true', 10080)->with('success', 'Selamat datang di Dashboard Admin!');
     }
 
     if ($request->ajax() || $request->wantsJson()) {
@@ -179,6 +179,7 @@ Route::post('/admin/login', function (Request $request) {
 
 Route::get('/admin/logout', function () {
     session()->forget('is_admin');
+    cookie()->queue(cookie()->forget('is_admin_vercel'));
     return redirect()->route('home')->with('success', 'Anda telah keluar dari Mode Admin.');
 })->name('admin.logout');
 
@@ -284,7 +285,7 @@ Route::post('/checkout', function (Request $request) {
 
 // Halaman Riwayat Transaksi (Khusus Admin)
 Route::get('/transactions', function () {
-    if (!session('is_admin')) {
+    if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) {
         return redirect()->route('home', ['admin' => 1])->with('error', 'Akses terbatas! Hanya Admin yang dapat melihat transaksi.');
     }
     
@@ -293,7 +294,7 @@ Route::get('/transactions', function () {
 })->name('transactions.index');
 
 Route::post('/orders/{id}/verify', function ($id) {
-    if (!session('is_admin')) return back();
+    if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) return back();
     $order = \App\Models\Order::findOrFail($id);
     $order->status = 'success';
     $order->save();
@@ -301,7 +302,7 @@ Route::post('/orders/{id}/verify', function ($id) {
 })->name('orders.verify');
 
 Route::post('/orders/{id}/cancel', function ($id) {
-    if (!session('is_admin')) return back();
+    if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) return back();
     $order = \App\Models\Order::findOrFail($id);
     $order->status = 'cancelled';
     $order->save();
@@ -309,7 +310,7 @@ Route::post('/orders/{id}/cancel', function ($id) {
 })->name('orders.cancel');
 
 Route::get('/orders/check-new', function (Illuminate\Http\Request $request) {
-    if (!session('is_admin')) return response()->json(['count' => 0]);
+    if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) return response()->json(['count' => 0]);
     $lastCheck = $request->query('last_check', now()->subSeconds(10)->toDateTimeString());
     $newOrders = \App\Models\Order::where('created_at', '>', $lastCheck)->count();
     return response()->json(['new_orders' => $newOrders, 'timestamp' => now()->toDateTimeString()]);
