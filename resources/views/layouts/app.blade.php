@@ -310,7 +310,6 @@
                                     <label class="block text-xs font-bold text-purple-900 mb-1">Unggah Bukti Pembayaran QRIS</label>
                                     <input type="file" id="qrisProofInput" @change="handleFileUpload($event)" accept="image/*" class="w-full text-xs text-stone-600 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200">
                                 </div>
-                            </div>
                         </div>
 
                     </div>
@@ -321,15 +320,29 @@
                             <p>Total Tagihan</p>
                             <p class="text-orange-700 text-2xl" x-text="formatRupiah(totalPrice)"></p>
                         </div>
+
+                        <!-- Math Captcha untuk Anti Spam -->
+                        <div class="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+                            <label class="block text-sm font-bold text-orange-800 mb-2">
+                                <i class="fa-solid fa-shield-halved mr-1"></i> Anti Spam: Berapa hasil dari <span x-text="captchaA"></span> + <span x-text="captchaB"></span>?
+                            </label>
+                            <input 
+                                type="number" 
+                                x-model="captchaAnswer" 
+                                class="w-full bg-white text-gray-800 border-2 border-orange-200 rounded-lg px-4 py-3 outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all font-bold text-lg"
+                                placeholder="Jawaban Anda..."
+                            >
+                        </div>
                         
                         <button 
                             @click="checkout()"
-                            :disabled="paymentMethod === 'Tunai' && cashReceived < totalPrice"
-                            :class="(paymentMethod === 'Tunai' && cashReceived < totalPrice) ? 'opacity-50 cursor-not-allowed bg-stone-400' : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-lg shadow-amber-600/30'"
+                            :disabled="isProcessing || isUploadingImage || (paymentMethod === 'Tunai' && cashReceived < totalPrice) || (parseInt(captchaAnswer) !== (captchaA + captchaB))"
+                            :class="(isProcessing || isUploadingImage || (paymentMethod === 'Tunai' && cashReceived < totalPrice) || (parseInt(captchaAnswer) !== (captchaA + captchaB))) ? 'opacity-50 cursor-not-allowed bg-stone-400' : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-lg shadow-amber-600/30'"
                             class="w-full flex items-center justify-center gap-2 rounded-full border border-transparent px-6 py-4 text-sm font-extrabold text-white uppercase tracking-widest transition-all"
                         >
-                            <i class="fa-solid fa-check-double"></i>
-                            Konfirmasi Pembayaran
+                            <i class="fa-solid fa-check-double" x-show="!isProcessing"></i>
+                            <i class="fa-solid fa-spinner fa-spin" x-show="isProcessing"></i>
+                            <span x-text="isProcessing ? 'Memproses...' : 'Konfirmasi Pembayaran'"></span>
                         </button>
                     </div>
                 </div>
@@ -351,6 +364,10 @@
                 cashReceived: 0,
                 transferProof: null, // Berisi File object jika masih menunggu upload, atau URL String setelah upload berhasil
                 isUploadingImage: false,
+                isProcessing: false,
+                captchaA: Math.floor(Math.random() * 10) + 1,
+                captchaB: Math.floor(Math.random() * 10) + 1,
+                captchaAnswer: '',
                 staticQris: '00020101021126570011ID.DANA.WWW011893600915301409631402090140963140303UMI51440014ID.CO.QRIS.WWW0215ID10265005804710303UMI5204594553033605802ID5910Imzzzstore6015Kota Jakarta Se6105122706304F45D',
                 
                 // --- API KEY IMGBB ---

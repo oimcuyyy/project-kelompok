@@ -185,6 +185,12 @@ Route::get('/admin/logout', function () {
 
 // Checkout Route (diubah dari /api/checkout untuk menghindari konflik folder api/ di Vercel)
 Route::post('/checkout', function (Request $request) {
+    // 0. Anti-Spam Berbasis Session (Tidak bisa ditembus oleh curl/bot tanpa session state)
+    $lastOrderTime = session('last_order_time');
+    if ($lastOrderTime && now()->diffInSeconds($lastOrderTime) < 15) {
+        return response()->json(['success' => false, 'message' => 'Anda memesan terlalu cepat. Silakan tunggu 15 detik.'], 429);
+    }
+
     // 1. Validasi Input ketat untuk mencegah injeksi & payload raksasa
     $request->validate([
         'total_price' => 'required|numeric|min:0',
@@ -242,6 +248,9 @@ Route::post('/checkout', function (Request $request) {
     $status = ($paymentMethod === 'Tunai') ? 'success' : 'pending';
 
     try {
+        // Catat waktu order di session untuk mencegah spam bot (Cooldown 15 detik)
+        session(['last_order_time' => now()]);
+
         $order = \App\Models\Order::create([
             'total_price' => $totalPrice,
             'status' => $status,
