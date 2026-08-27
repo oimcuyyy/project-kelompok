@@ -557,49 +557,30 @@
                 },
 
                 async checkout() {
+                    if (this.isProcessing) return;
                     if (this.cart.length === 0) return;
                     
-                    if (this.orderType === 'Dine In') {
-                        if (!this.tableNumber || this.tableNumber.trim() === '') {
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Mohon Maaf',
-                                text: 'Nomor meja wajib diisi untuk pesanan Makan di Tempat (Dine In)!',
-                                confirmButtonColor: '#d97706'
-                            });
-                            return;
-                        }
-                        if (!this.customerName || this.customerName.trim() === '') {
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Mohon Maaf',
-                                text: 'Nama pelanggan wajib diisi untuk pesanan Makan di Tempat (Dine In)!',
-                                confirmButtonColor: '#d97706'
-                            });
-                            return;
-                        }
-                    }
-                    if (this.paymentMethod === 'Tunai' && this.cashReceived < this.totalPrice) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Oops...',
-                            text: 'Uang tunai kurang!',
-                            confirmButtonColor: '#d97706'
-                        });
-                        return;
-                    }
-
-                    if ((this.paymentMethod === 'Transfer' || this.paymentMethod === 'QRIS') && !this.transferProof) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Oops...',
-                            text: 'Mohon unggah bukti transfer/pembayaran!',
-                            confirmButtonColor: '#d97706'
-                        });
-                        return;
-                    }
-                    
+                    this.isProcessing = true;
                     try {
+                        if (this.orderType === 'Dine In') {
+                            if (!this.tableNumber || this.tableNumber.trim() === '') {
+                                Swal.fire({ icon: 'warning', title: 'Mohon Maaf', text: 'Nomor meja wajib diisi untuk pesanan Makan di Tempat (Dine In)!', confirmButtonColor: '#d97706' });
+                                return;
+                            }
+                            if (!this.customerName || this.customerName.trim() === '') {
+                                Swal.fire({ icon: 'warning', title: 'Mohon Maaf', text: 'Nama pelanggan wajib diisi untuk pesanan Makan di Tempat (Dine In)!', confirmButtonColor: '#d97706' });
+                                return;
+                            }
+                        }
+                        if (this.paymentMethod === 'Tunai' && this.cashReceived < this.totalPrice) {
+                            Swal.fire({ icon: 'warning', title: 'Oops...', text: 'Uang tunai kurang!', confirmButtonColor: '#d97706' });
+                            return;
+                        }
+                        if ((this.paymentMethod === 'Transfer' || this.paymentMethod === 'QRIS') && !this.transferProof) {
+                            Swal.fire({ icon: 'warning', title: 'Oops...', text: 'Mohon unggah bukti transfer/pembayaran!', confirmButtonColor: '#d97706' });
+                            return;
+                        }
+                        
                         let formData = new FormData();
                         formData.append('cart', JSON.stringify(this.cart));
                         formData.append('total_price', this.totalPrice);
@@ -611,7 +592,6 @@
                         formData.append('change', this.paymentMethod === 'Tunai' ? this.changeAmount : 0);
                         
                         if (this.transferProof && typeof this.transferProof === 'string') {
-                            // Karena sudah diupload ke ImgBB, transferProof sekarang berisi string URL
                             formData.append('transfer_proof', this.transferProof);
                         }
 
@@ -625,12 +605,11 @@
                         });
                         
                         if (response.status === 413) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal',
-                                text: 'Ukuran foto bukti pembayaran terlalu besar. Mohon perkecil ukuran foto Anda.',
-                                confirmButtonColor: '#d97706'
-                            });
+                            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Ukuran foto bukti pembayaran terlalu besar.', confirmButtonColor: '#d97706' });
+                            return;
+                        }
+                        if (response.status === 429) {
+                            Swal.fire({ icon: 'error', title: 'Terlalu Cepat', text: 'Sistem mendeteksi spam! Tunggu sebentar.', confirmButtonColor: '#d97706' });
                             return;
                         }
 
@@ -642,37 +621,19 @@
                         }
                         
                         if (result.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Pesanan Berhasil!',
-                                text: 'Terima kasih atas pesanan Anda.',
-                                confirmButtonColor: '#059669'
-                            }).then(() => {
-                                this.cart = [];
-                                this.cashReceived = 0;
-                                this.customerName = '';
-                                this.tableNumber = '';
-                                this.transferProof = null;
-                                this.isPaymentOpen = false;
+                            Swal.fire({ icon: 'success', title: 'Pesanan Berhasil!', text: 'Terima kasih atas pesanan Anda.', confirmButtonColor: '#059669' }).then(() => {
+                                this.cart = []; this.cashReceived = 0; this.customerName = ''; this.tableNumber = ''; this.transferProof = null; this.isPaymentOpen = false;
                                 if (document.getElementById('transferProofInput')) document.getElementById('transferProofInput').value = '';
                                 if (document.getElementById('qrisProofInput')) document.getElementById('qrisProofInput').value = '';
                             });
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal',
-                                text: result.message || 'Gagal melakukan pesanan.',
-                                confirmButtonColor: '#d97706'
-                            });
+                            Swal.fire({ icon: 'error', title: 'Gagal', text: result.message || 'Gagal melakukan pesanan.', confirmButtonColor: '#d97706' });
                         }
                     } catch (error) {
                         console.error('Checkout error:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Terjadi kesalahan sistem atau ukuran file terlalu besar untuk server.',
-                            confirmButtonColor: '#d97706'
-                        });
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan sistem atau ukuran file terlalu besar untuk server.', confirmButtonColor: '#d97706' });
+                    } finally {
+                        this.isProcessing = false;
                     }
                 }
             }));
