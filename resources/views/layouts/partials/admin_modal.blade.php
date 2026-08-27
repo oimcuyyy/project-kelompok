@@ -1,6 +1,6 @@
 <!-- Admin Authentication & Management Modal (Ctrl + Shift + L) -->
-<div id="admin-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-300">
-    <div class="relative w-full max-w-md bg-[#1c120c] border border-amber-600/60 rounded-3xl p-6 sm:p-8 shadow-2xl text-amber-100 transform transition-all scale-95 opacity-0" id="admin-modal-box">
+<div id="admin-modal" class="fixed inset-0 z-[9999] {{ request()->has('admin') ? 'flex' : 'hidden' }} items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-300">
+    <div class="relative w-full max-w-md bg-[#1c120c] border border-amber-600/60 rounded-3xl p-6 sm:p-8 shadow-2xl text-amber-100 transform transition-all {{ request()->has('admin') ? 'scale-100 opacity-100' : 'scale-95 opacity-0' }}" id="admin-modal-box">
         
         <!-- Close Button -->
         <button type="button" id="close-admin-modal-btn" onclick="closeAdminModal()" class="absolute top-4 right-4 text-amber-400/60 hover:text-amber-300 p-2 text-sm rounded-full transition">
