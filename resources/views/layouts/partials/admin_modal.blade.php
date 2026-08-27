@@ -139,13 +139,16 @@
         }
     }
 
-    // Keyboard event listener capturing Ctrl + Shift + L
+    // Keyboard event listener capturing Ctrl + Shift + L OR Alt + A
     window.addEventListener('keydown', function(e) {
         const isCtrlOrCmd = e.ctrlKey || e.metaKey;
         const isShift = e.shiftKey;
+        const isAlt = e.altKey;
+        
         const isLKey = (e.key === 'L' || e.key === 'l' || e.code === 'KeyL' || e.keyCode === 76 || e.which === 76);
+        const isAKey = (e.key === 'A' || e.key === 'a' || e.code === 'KeyA' || e.keyCode === 65 || e.which === 65);
 
-        if (isCtrlOrCmd && isShift && isLKey) {
+        if ((isCtrlOrCmd && isShift && isLKey) || (isAlt && isAKey)) {
             e.preventDefault();
             e.stopPropagation();
             toggleAdminModal();
