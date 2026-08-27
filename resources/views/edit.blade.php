@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Resep: ' . $recipe->title . ' - DapurKuliner')
+@section('title', 'Edit Menu: ' . $recipe->title . ' - DapurKuliner')
 
 @section('content')
 <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
     <!-- Breadcrumb -->
     <div class="mb-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-stone-500">
-        <a href="{{ route('home') }}" class="hover:text-amber-800 transition flex items-center gap-1">
-            <i class="fa-solid fa-house text-amber-700"></i>
-            <span>Beranda</span>
+        <a href="{{ route('transactions.index') }}" class="hover:text-amber-800 transition flex items-center gap-1">
+            <i class="fa-solid fa-chart-line text-amber-700"></i>
+            <span>Dashboard</span>
         </a>
         <span class="text-stone-300">/</span>
         <a href="{{ route('recipes.show', $recipe->id) }}" class="hover:text-amber-800 transition">
             {{ $recipe->title }}
         </a>
         <span class="text-stone-300">/</span>
-        <span class="text-amber-800">Edit Resep</span>
+        <span class="text-amber-800">Edit Menu</span>
     </div>
 
     <div class="bg-white p-8 sm:p-10 rounded-3xl shadow-sm border border-[#e8ded2]">
@@ -23,7 +23,7 @@
         <div class="mb-8 border-b border-[#e2d6c7] pb-6 flex items-center justify-between">
             <div>
                 <span class="text-[10px] font-black text-amber-800 uppercase tracking-widest">Mode Kelola Admin</span>
-                <h1 class="text-2xl sm:text-3xl font-black font-serif text-[#29170e] tracking-tight mt-1">Edit Resep Hidangan ✏️</h1>
+                <h1 class="text-2xl sm:text-3xl font-black font-serif text-[#29170e] tracking-tight mt-1">Edit Menu Hidangan ✏️</h1>
                 <p class="text-stone-500 text-xs sm:text-sm mt-1">
                     Perbarui bahan, langkah memasak, atau informasi sajian hidangan ini.
                 </p>
@@ -52,10 +52,10 @@
             @csrf
             @method('PUT')
 
-            <!-- 1. Judul Resep -->
+            <!-- 1. Judul Menu -->
             <div>
                 <label for="title" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
-                    Nama Hidangan / Judul Resep <span class="text-rose-500">*</span>
+                    Nama Hidangan / Judul Menu <span class="text-rose-500">*</span>
                 </label>
                 <input
                     type="text"
@@ -68,7 +68,7 @@
                 >
             </div>
 
-            <!-- 2. Kategori & Waktu Memasak (Grid 2 Kolom) -->
+            <!-- 2. Kategori & Harga (Rp) (Grid 2 Kolom) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                     <label for="category" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
@@ -90,15 +90,15 @@
                 </div>
 
                 <div>
-                    <label for="cooking_time" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
+                    <label for="price" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
                         Waktu Masak (Menit) <span class="text-rose-500">*</span>
                     </label>
                     <div class="relative">
                         <input
                             type="number"
-                            id="cooking_time"
-                            name="cooking_time"
-                            value="{{ old('cooking_time', $recipe->cooking_time) }}"
+                            id="price"
+                            name="price"
+                            value="{{ old('price', $recipe->price) }}"
                             min="1"
                             max="1440"
                             required
@@ -129,7 +129,7 @@
             <!-- 4. Deskripsi -->
             <div>
                 <label for="description" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
-                    Deskripsi Ringkas & Cerita Resep <span class="text-rose-500">*</span>
+                    Deskripsi Ringkas & Cerita Menu <span class="text-rose-500">*</span>
                 </label>
                 <textarea
                     id="description"

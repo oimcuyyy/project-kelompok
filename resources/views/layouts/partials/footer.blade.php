@@ -10,11 +10,11 @@
                     </div>
                     <div>
                         <span class="text-2xl font-black font-serif text-white tracking-tight">Dapur<span class="text-amber-400">Kuliner</span></span>
-                        <div class="text-[9px] uppercase tracking-widest text-amber-400/80 font-bold">Rumah Resep Autentik</div>
+                        <div class="text-[9px] uppercase tracking-widest text-amber-400/80 font-bold">Rumah Menu Autentik</div>
                     </div>
                 </a>
                 <p class="text-xs text-amber-200/70 leading-relaxed">
-                    Menghidangkan ribuan inspirasi resep masakan nusantara dan mancanegara dengan racikan bumbu khas dapur keluarga Indonesia.
+                    Menghidangkan ribuan inspirasi menu masakan nusantara dan mancanegara dengan racikan bumbu khas dapur keluarga Indonesia.
                 </p>
                 <div class="flex space-x-3 text-sm pt-2">
                     <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="w-9 h-9 rounded-xl bg-[#2a1b12] border border-amber-900/60 flex items-center justify-center text-amber-300 hover:bg-amber-600 hover:text-white transition-all">
@@ -36,27 +36,27 @@
                 </h4>
                 <ul class="space-y-2.5 text-xs text-amber-200/70">
                     <li>
-                        <a href="{{ route('home', ['category' => 'Nusantara']) }}#resep" class="hover:text-amber-300 transition-colors flex items-center gap-2">
+                        <a href="{{ route('home', ['category' => 'Nusantara']) }}#menu" class="hover:text-amber-300 transition-colors flex items-center gap-2">
                             <span class="text-amber-500">›</span> Hidangan Nusantara
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('home', ['category' => 'Western']) }}#resep" class="hover:text-amber-300 transition-colors flex items-center gap-2">
+                        <a href="{{ route('home', ['category' => 'Western']) }}#menu" class="hover:text-amber-300 transition-colors flex items-center gap-2">
                             <span class="text-amber-500">›</span> Masakan Western
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('home', ['category' => 'Asia']) }}#resep" class="hover:text-amber-300 transition-colors flex items-center gap-2">
+                        <a href="{{ route('home', ['category' => 'Asia']) }}#menu" class="hover:text-amber-300 transition-colors flex items-center gap-2">
                             <span class="text-amber-500">›</span> Masakan Asia & Oriental
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('home', ['category' => 'Sehat']) }}#resep" class="hover:text-amber-300 transition-colors flex items-center gap-2">
+                        <a href="{{ route('home', ['category' => 'Sehat']) }}#menu" class="hover:text-amber-300 transition-colors flex items-center gap-2">
                             <span class="text-amber-500">›</span> Sajian Diet & Sehat
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('home', ['category' => 'Kue & Dessert']) }}#resep" class="hover:text-amber-300 transition-colors flex items-center gap-2">
+                        <a href="{{ route('home', ['category' => 'Kue & Dessert']) }}#menu" class="hover:text-amber-300 transition-colors flex items-center gap-2">
                             <span class="text-amber-500">›</span> Kue Tradisional & Manisan
                         </a>
                     </li>
@@ -76,11 +76,11 @@
                     </li>
                     <li>
                         <a href="{{ route('recipes.create') }}" class="hover:text-amber-300 transition-colors flex items-center gap-2">
-                            <span class="text-amber-500">›</span> Tulis Resep Baru
+                            <span class="text-amber-500">›</span> Tulis Menu Baru
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('home') }}#resep" class="hover:text-amber-300 transition-colors flex items-center gap-2">
+                        <a href="{{ route('home') }}#menu" class="hover:text-amber-300 transition-colors flex items-center gap-2">
                             <span class="text-amber-500">›</span> Daftar Semua Hidangan
                         </a>
                     </li>

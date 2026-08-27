@@ -19,13 +19,16 @@
                     </span>
                     <h3 class="text-xl sm:text-2xl font-black font-serif text-white">Mode Admin Aktif</h3>
                     <p class="text-xs text-amber-200/70 mt-1">
-                        Anda memiliki hak penuh untuk menambah, mengedit, dan menghapus menu hidangan resep.
+                        Anda memiliki hak penuh untuk menambah, mengedit, dan menghapus menu hidangan menu.
                     </p>
                 </div>
 
                 <div class="pt-4 space-y-2.5">
-                    <a href="{{ route('recipes.create') }}" class="block w-full py-3 rounded-full bg-gradient-to-r from-amber-500 via-orange-600 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold text-xs uppercase tracking-wider shadow-lg transition text-center border border-amber-400/30">
-                        <i class="fa-solid fa-plus mr-1.5"></i> Tulis Resep Baru
+                    <a href="{{ route('transactions.index') }}" class="block w-full py-3 rounded-full bg-gradient-to-r from-amber-500 via-orange-600 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold text-xs uppercase tracking-wider shadow-lg transition text-center border border-amber-400/30">
+                        <i class="fa-solid fa-chart-line mr-1.5"></i> Dashboard Admin
+                    </a>
+                    <a href="{{ route('recipes.create') }}" class="block w-full py-2.5 rounded-full bg-[#3d2012] hover:bg-[#4d2816] text-amber-100 text-xs font-bold uppercase tracking-wider transition text-center border border-amber-900/60">
+                        <i class="fa-solid fa-plus mr-1.5"></i> Tulis Menu Baru
                     </a>
                     <a href="{{ route('admin.logout') }}" class="block w-full py-2.5 rounded-full bg-[#2a170d] hover:bg-[#3d2012] text-amber-300 text-xs font-bold uppercase tracking-wider transition text-center border border-amber-900/60">
                         <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Keluar Mode Admin
@@ -46,7 +49,7 @@
                 </div>
 
                 <p class="text-xs text-amber-200/70 leading-relaxed">
-                    Fitur menambah dan mengelola resep dibatasi khusus untuk Administrator / Koki dapur.
+                    Fitur menambah dan mengelola menu dibatasi khusus untuk Administrator / Koki dapur.
                 </p>
 
                 <!-- Login Form -->

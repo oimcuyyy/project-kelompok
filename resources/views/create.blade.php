@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Tulis Resep Baru - DapurKuliner')
+@section('title', 'Tulis Menu Baru - DapurKuliner')
 
 @section('content')
 <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
     <!-- Breadcrumb -->
     <div class="mb-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-stone-500">
-        <a href="{{ route('home') }}" class="hover:text-amber-800 transition flex items-center gap-1">
-            <i class="fa-solid fa-house text-amber-700"></i>
-            <span>Beranda</span>
+        <a href="{{ route('transactions.index') }}" class="hover:text-amber-800 transition flex items-center gap-1">
+            <i class="fa-solid fa-chart-line text-amber-700"></i>
+            <span>Dashboard</span>
         </a>
         <span class="text-stone-300">/</span>
-        <span class="text-amber-800">Tulis Resep Baru</span>
+        <span class="text-amber-800">Tulis Menu Baru</span>
     </div>
 
     <div class="bg-white p-8 sm:p-10 rounded-3xl shadow-sm border border-[#e8ded2]">
@@ -19,9 +19,9 @@
         <div class="mb-8 border-b border-[#e2d6c7] pb-6 flex items-center justify-between">
             <div>
                 <span class="text-[10px] font-black text-amber-800 uppercase tracking-widest">Koleksi Dapur Koki</span>
-                <h1 class="text-2xl sm:text-3xl font-black font-serif text-[#29170e] tracking-tight mt-1">Tulis Resep Baru 🍳</h1>
+                <h1 class="text-2xl sm:text-3xl font-black font-serif text-[#29170e] tracking-tight mt-1">Tulis Menu Baru 🍳</h1>
                 <p class="text-stone-500 text-xs sm:text-sm mt-1">
-                    Bagikan racikan resep andalan keluarga Anda agar bisa dinikmati oleh ribuan pecinta kuliner nusantara.
+                    Bagikan racikan menu andalan keluarga Anda agar bisa dinikmati oleh ribuan pecinta kuliner nusantara.
                 </p>
             </div>
             <div class="w-12 h-12 rounded-2xl bg-[#faf5ee] border border-[#d9c7b0] text-amber-800 flex items-center justify-center text-xl shrink-0 hidden sm:flex">
@@ -47,10 +47,10 @@
         <form action="{{ route('recipes.store') }}" method="POST" class="space-y-6">
             @csrf
 
-            <!-- 1. Judul Resep -->
+            <!-- 1. Judul Menu -->
             <div>
                 <label for="title" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
-                    Nama Hidangan / Judul Resep <span class="text-rose-500">*</span>
+                    Nama Hidangan / Judul Menu <span class="text-rose-500">*</span>
                 </label>
                 <input
                     type="text"
@@ -63,7 +63,7 @@
                 >
             </div>
 
-            <!-- 2. Kategori & Waktu Memasak -->
+            <!-- 2. Kategori & Harga (Rp) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                     <label for="category" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
@@ -85,15 +85,15 @@
                 </div>
 
                 <div>
-                    <label for="cooking_time" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
+                    <label for="price" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
                         Waktu Masak (Menit) <span class="text-rose-500">*</span>
                     </label>
                     <div class="relative">
                         <input
                             type="number"
-                            id="cooking_time"
-                            name="cooking_time"
-                            value="{{ old('cooking_time', 30) }}"
+                            id="price"
+                            name="price"
+                            value="{{ old('price', 30) }}"
                             required
                             min="1"
                             max="1440"
@@ -136,10 +136,10 @@
                 </div>
             </div>
 
-            <!-- 4. Deskripsi Resep -->
+            <!-- 4. Deskripsi Menu -->
             <div>
                 <label for="description" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
-                    Cerita / Deskripsi Singkat Resep <span class="text-rose-500">*</span>
+                    Cerita / Deskripsi Singkat Menu <span class="text-rose-500">*</span>
                 </label>
                 <textarea
                     id="description"
@@ -198,7 +198,7 @@
                     class="bg-gradient-to-r from-amber-500 via-orange-600 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xs uppercase tracking-widest px-8 py-3.5 rounded-full shadow-lg shadow-orange-950/40 hover:scale-105 transition-all flex items-center gap-2 border border-amber-300/30"
                 >
                     <i class="fa-solid fa-paper-plane text-xs"></i>
-                    <span>Publikasikan Resep</span>
+                    <span>Publikasikan Menu</span>
                 </button>
             </div>
         </form>

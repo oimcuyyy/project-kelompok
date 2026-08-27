@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('category');
             $table->text('description');
             $table->string('image');
-            $table->integer('cooking_time');
-            $table->text('ingredients')->nullable(); // Kolom Bahan-bahan
-            $table->text('steps')->nullable();       // Kolom Langkah Memasak
+            $table->integer('price');
+            
+            
             $table->timestamps();
         });
     }
@@ -32,3 +32,4 @@ return new class extends Migration
         Schema::dropIfExists('recipes');
     }
 };
+

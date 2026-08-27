@@ -4,16 +4,26 @@ use App\Models\Recipe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Beranda (Search & Filter)
-Route::get('/', function (Request $request) {
+// Halaman Beranda (Hero)
+Route::get('/', function () {
+    $totalRecipes = Recipe::count();
+    return view('home', compact('totalRecipes'));
+})->name('home');
+
+// Halaman Tentang Kami (About Us)
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+// Halaman Buku Menu & POS
+Route::get('/menu', function (Request $request) {
     $query = Recipe::query();
 
     if ($request->filled('search')) {
         $search = trim($request->search);
         $query->where(function ($q) use ($search) {
             $q->where('title', 'like', '%' . $search . '%')
-              ->orWhere('description', 'like', '%' . $search . '%')
-              ->orWhere('ingredients', 'like', '%' . $search . '%');
+              ->orWhere('description', 'like', '%' . $search . '%');
         });
     }
 
@@ -23,10 +33,9 @@ Route::get('/', function (Request $request) {
 
     $recipes = $query->latest()->get();
     $categories = ['Semua', 'Nusantara', 'Western', 'Asia', 'Sehat', 'Kue & Dessert', 'Minuman'];
-    $featuredRecipes = Recipe::inRandomOrder()->take(3)->get();
 
-    return view('home', compact('recipes', 'categories', 'featuredRecipes'));
-})->name('home');
+    return view('menu', compact('recipes', 'categories'));
+})->name('menu.index');
 
 // Form Tambah Resep Baru (Khusus Admin)
 Route::get('/recipes/create', function () {
@@ -47,16 +56,16 @@ Route::post('/recipes', function (Request $request) {
     $validated = $request->validate([
         'title'        => 'required|string|max:255',
         'category'     => 'required|string|max:100',
-        'cooking_time' => 'required|integer|min:1|max:1440',
+        'price' => 'required|numeric|min:0',
         'image'        => 'required|url',
         'description'  => 'required|string|max:2000',
-        'ingredients'  => 'nullable|string',
-        'steps'        => 'nullable|string',
+        
+        
     ], [
         'title.required'        => 'Judul resep wajib diisi.',
         'category.required'     => 'Kategori resep wajib dipilih.',
-        'cooking_time.required' => 'Waktu memasak wajib diisi.',
-        'cooking_time.min'      => 'Waktu memasak minimal 1 menit.',
+        'price.required' => 'Harga wajib diisi.',
+        'price.min' => 'Harga tidak boleh negatif.',
         'image.required'        => 'URL gambar wajib diisi.',
         'image.url'             => 'Format URL gambar tidak valid (contoh: https://...).',
         'description.required'  => 'Deskripsi resep wajib diisi.',
@@ -64,7 +73,7 @@ Route::post('/recipes', function (Request $request) {
 
     $recipe = Recipe::create($validated);
 
-    return redirect()->route('recipes.show', $recipe->id)->with('success', 'Resep berhasil dipublikasikan oleh Admin!');
+    return redirect()->route('recipes.show', $recipe->id)->with('success', 'Menu berhasil ditambahkan oleh Admin!');
 })->name('recipes.store');
 
 // Form Edit Resep (Khusus Admin)
@@ -89,16 +98,16 @@ Route::put('/recipes/{id}', function (Request $request, $id) {
     $validated = $request->validate([
         'title'        => 'required|string|max:255',
         'category'     => 'required|string|max:100',
-        'cooking_time' => 'required|integer|min:1|max:1440',
+        'price' => 'required|numeric|min:0',
         'image'        => 'required|url',
         'description'  => 'required|string|max:2000',
-        'ingredients'  => 'nullable|string',
-        'steps'        => 'nullable|string',
+        
+        
     ], [
         'title.required'        => 'Judul resep wajib diisi.',
         'category.required'     => 'Kategori resep wajib dipilih.',
-        'cooking_time.required' => 'Waktu memasak wajib diisi.',
-        'cooking_time.min'      => 'Waktu memasak minimal 1 menit.',
+        'price.required' => 'Harga wajib diisi.',
+        'price.min' => 'Harga tidak boleh negatif.',
         'image.required'        => 'URL gambar wajib diisi.',
         'image.url'             => 'Format URL gambar tidak valid (contoh: https://...).',
         'description.required'  => 'Deskripsi resep wajib diisi.',
@@ -106,7 +115,7 @@ Route::put('/recipes/{id}', function (Request $request, $id) {
 
     $recipe->update($validated);
 
-    return redirect()->route('recipes.show', $recipe->id)->with('success', 'Resep berhasil diperbarui oleh Admin!');
+    return redirect()->route('recipes.show', $recipe->id)->with('success', 'Menu berhasil diperbarui oleh Admin!');
 })->name('recipes.update');
 
 // Hapus Resep (Khusus Admin)
@@ -118,7 +127,7 @@ Route::delete('/recipe/{id}', function ($id) {
     $recipe = Recipe::findOrFail($id);
     $recipe->delete();
 
-    return redirect()->route('home')->with('success', 'Resep berhasil dihapus oleh Admin.');
+    return redirect()->route('home')->with('success', 'Menu berhasil dihapus oleh Admin.');
 })->name('recipes.destroy');
 
 // Detail Resep
@@ -156,10 +165,10 @@ Route::post('/admin/login', function (Request $request) {
         session(['is_admin' => true]);
 
         if ($request->ajax() || $request->wantsJson()) {
-            return response()->json(['success' => true, 'message' => 'Berhasil masuk sebagai Admin!']);
+            return response()->json(['success' => true, 'message' => 'Berhasil masuk sebagai Admin!', 'redirect' => route('transactions.index')]);
         }
 
-        return redirect()->route('home')->with('success', 'Selamat datang! Anda kini berada dalam Mode Admin.');
+        return redirect()->route('transactions.index')->with('success', 'Selamat datang di Dashboard Admin!');
     }
 
     if ($request->ajax() || $request->wantsJson()) {
@@ -173,3 +182,97 @@ Route::get('/admin/logout', function () {
     session()->forget('is_admin');
     return redirect()->route('home')->with('success', 'Anda telah keluar dari Mode Admin.');
 })->name('admin.logout');
+
+
+// Checkout API
+Route::post('/api/checkout', function (Request $request) {
+    $cart = is_string($request->input('cart')) ? json_decode($request->input('cart'), true) : $request->input('cart');
+    $totalPrice = $request->input('total_price');
+    $customerName = $request->input('customer_name');
+    $orderType = $request->input('order_type', 'Dine In');
+    $tableNumber = $request->input('table_number');
+    $paymentMethod = $request->input('payment_method', 'Tunai');
+    $cashReceived = $request->input('cash_received', 0);
+    $change = $request->input('change', 0);
+
+    if (!$cart || empty($cart)) {
+        return response()->json(['success' => false, 'message' => 'Keranjang kosong!'], 400);
+    }
+
+    if ($orderType === 'Dine In') {
+        if (empty(trim($tableNumber))) {
+            return response()->json(['success' => false, 'message' => 'Nomor meja wajib diisi untuk Makan di Tempat!'], 400);
+        }
+        if (empty(trim($customerName))) {
+            return response()->json(['success' => false, 'message' => 'Nama pelanggan wajib diisi untuk Makan di Tempat!'], 400);
+        }
+    }
+
+    $proofPath = null;
+    if ($request->hasFile('transfer_proof')) {
+        $file = $request->file('transfer_proof');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $file->move(public_path('proofs'), $filename);
+        $proofPath = 'proofs/' . $filename;
+    }
+
+    // Buat order baru
+    $status = ($paymentMethod === 'Tunai') ? 'success' : 'pending';
+
+    $order = \App\Models\Order::create([
+        'total_price' => $totalPrice,
+        'status' => $status,
+        'customer_name' => $customerName,
+        'order_type' => $orderType,
+        'table_number' => $tableNumber,
+        'payment_method' => $paymentMethod,
+        'cash_received' => $cashReceived,
+        'change' => $change,
+        'transfer_proof' => $proofPath,
+    ]);
+
+    // Masukkan order items
+    foreach ($cart as $item) {
+        \App\Models\OrderItem::create([
+            'order_id' => $order->id,
+            'recipe_id' => $item['id'],
+            'quantity' => $item['quantity'],
+            'price' => $item['price'],
+        ]);
+    }
+
+    return response()->json(['success' => true, 'order_id' => $order->id]);
+});
+
+// Halaman Riwayat Transaksi (Khusus Admin)
+Route::get('/transactions', function () {
+    if (!session('is_admin')) {
+        return redirect()->route('home', ['admin' => 1])->with('error', 'Akses terbatas! Hanya Admin yang dapat melihat transaksi.');
+    }
+    
+    $orders = \App\Models\Order::with('items.menu')->latest()->get();
+    return view('transactions', compact('orders'));
+})->name('transactions.index');
+
+Route::post('/orders/{id}/verify', function ($id) {
+    if (!session('is_admin')) return back();
+    $order = \App\Models\Order::findOrFail($id);
+    $order->status = 'success';
+    $order->save();
+    return back()->with('success', 'Pembayaran berhasil dikonfirmasi.');
+})->name('orders.verify');
+
+Route::post('/orders/{id}/cancel', function ($id) {
+    if (!session('is_admin')) return back();
+    $order = \App\Models\Order::findOrFail($id);
+    $order->status = 'cancelled';
+    $order->save();
+    return back()->with('success', 'Pesanan telah dibatalkan.');
+})->name('orders.cancel');
+
+Route::get('/api/orders/check-new', function (Illuminate\Http\Request $request) {
+    if (!session('is_admin')) return response()->json(['count' => 0]);
+    $lastCheck = $request->query('last_check', now()->subSeconds(10)->toDateTimeString());
+    $newOrders = \App\Models\Order::where('created_at', '>', $lastCheck)->count();
+    return response()->json(['new_orders' => $newOrders, 'timestamp' => now()->toDateTimeString()]);
+});
