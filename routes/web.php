@@ -184,8 +184,8 @@ Route::get('/admin/logout', function () {
 })->name('admin.logout');
 
 
-// Checkout API
-Route::post('/api/checkout', function (Request $request) {
+// Checkout Route (diubah dari /api/checkout untuk menghindari konflik folder api/ di Vercel)
+Route::post('/checkout', function (Request $request) {
     $cart = is_string($request->input('cart')) ? json_decode($request->input('cart'), true) : $request->input('cart');
     $totalPrice = $request->input('total_price');
     $customerName = $request->input('customer_name');
@@ -281,7 +281,7 @@ Route::post('/orders/{id}/cancel', function ($id) {
     return back()->with('success', 'Pesanan telah dibatalkan.');
 })->name('orders.cancel');
 
-Route::get('/api/orders/check-new', function (Illuminate\Http\Request $request) {
+Route::get('/orders/check-new', function (Illuminate\Http\Request $request) {
     if (!session('is_admin')) return response()->json(['count' => 0]);
     $lastCheck = $request->query('last_check', now()->subSeconds(10)->toDateTimeString());
     $newOrders = \App\Models\Order::where('created_at', '>', $lastCheck)->count();

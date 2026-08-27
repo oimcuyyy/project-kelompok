@@ -615,7 +615,7 @@
                             formData.append('transfer_proof', this.transferProof);
                         }
 
-                        const response = await fetch('/api/checkout', {
+                        const response = await fetch('/checkout', {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),

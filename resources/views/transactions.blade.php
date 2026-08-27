@@ -129,7 +129,7 @@
         
         setInterval(async () => {
             try {
-                const response = await fetch(`/api/orders/check-new?last_check=${encodeURIComponent(lastCheck)}`);
+                const response = await fetch(`/orders/check-new?last_check=${encodeURIComponent(lastCheck)}`);
                 const data = await response.json();
                 
                 if (data.new_orders > 0) {
