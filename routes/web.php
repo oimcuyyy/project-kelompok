@@ -159,24 +159,23 @@ Route::get('/admin/login', function () {
 
 Route::post('/admin/login', function (Request $request) {
     $password = $request->input('password');
+    // Admin password (sebaiknya dipindah ke .env nanti: env('ADMIN_PASSWORD'))
+    $adminPassword = env('ADMIN_PASSWORD', 'admin123');
 
-    // Default password admin
-    if ($password === 'admin123' || $password === 'admin' || $password === '1234') {
+    if ($password === $adminPassword || $password === 'admin' || $password === '1234') {
         session(['is_admin' => true]);
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'Berhasil masuk sebagai Admin!', 'redirect' => route('transactions.index')]);
         }
-
         return redirect()->route('transactions.index')->with('success', 'Selamat datang di Dashboard Admin!');
     }
 
     if ($request->ajax() || $request->wantsJson()) {
         return response()->json(['success' => false, 'message' => 'Kata sandi admin salah!'], 422);
     }
-
-    return redirect()->back()->with('error', 'Kata sandi admin salah! (Default: admin123)');
-})->name('admin.login');
+    return redirect()->back()->with('error', 'Kata sandi admin salah!');
+})->name('admin.login')->middleware('throttle:5,1'); // Limit: Max 5 percobaan login per menit
 
 Route::get('/admin/logout', function () {
     session()->forget('is_admin');
@@ -186,6 +185,17 @@ Route::get('/admin/logout', function () {
 
 // Checkout Route (diubah dari /api/checkout untuk menghindari konflik folder api/ di Vercel)
 Route::post('/checkout', function (Request $request) {
+    // 1. Validasi Input ketat untuk mencegah injeksi & payload raksasa
+    $request->validate([
+        'total_price' => 'required|numeric|min:0',
+        'customer_name' => 'nullable|string|max:100', // Batasi panjang nama
+        'order_type' => 'required|string|in:Dine In,Takeaway',
+        'table_number' => 'nullable|string|max:20',
+        'payment_method' => 'required|string|in:Tunai,Transfer,QRIS',
+        'cash_received' => 'nullable|numeric|min:0',
+        'change' => 'nullable|numeric|min:0',
+    ]);
+
     $cart = is_string($request->input('cart')) ? json_decode($request->input('cart'), true) : $request->input('cart');
     $totalPrice = $request->input('total_price');
     $customerName = $request->input('customer_name');
@@ -195,8 +205,13 @@ Route::post('/checkout', function (Request $request) {
     $cashReceived = $request->input('cash_received', 0);
     $change = $request->input('change', 0);
 
-    if (!$cart || empty($cart)) {
-        return response()->json(['success' => false, 'message' => 'Keranjang kosong!'], 400);
+    if (!$cart || empty($cart) || !is_array($cart)) {
+        return response()->json(['success' => false, 'message' => 'Keranjang kosong atau tidak valid!'], 400);
+    }
+
+    // 2. Validasi keranjang maksimal 50 item agar tidak membebani database
+    if (count($cart) > 50) {
+        return response()->json(['success' => false, 'message' => 'Terlalu banyak item dalam satu pesanan (Maks 50).'], 400);
     }
 
     if ($orderType === 'Dine In') {
@@ -209,15 +224,15 @@ Route::post('/checkout', function (Request $request) {
     }
 
     $proofPath = null;
-    if ($request->has('transfer_proof')) {
+    if ($request->has('transfer_proof') && !empty($request->transfer_proof)) {
         $proof = $request->input('transfer_proof');
         if (is_string($proof) && filter_var($proof, FILTER_VALIDATE_URL)) {
-            // Jika transfer_proof berupa URL (berasal dari ImgBB)
             $proofPath = $proof;
         } elseif ($request->hasFile('transfer_proof')) {
-            // Fallback: Jika masih berupa file (lokal Laragon)
             $file = $request->file('transfer_proof');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            // Validasi ukuran dan ekstensi file gambar
+            $request->validate(['transfer_proof' => 'image|mimes:jpeg,png,jpg|max:5120']);
+            $filename = time() . '_' . substr(preg_replace('/[^a-zA-Z0-9.]/', '', $file->getClientOriginalName()), -30);
             $file->move(public_path('proofs'), $filename);
             $proofPath = 'proofs/' . $filename;
         }
@@ -230,10 +245,10 @@ Route::post('/checkout', function (Request $request) {
         $order = \App\Models\Order::create([
             'total_price' => $totalPrice,
             'status' => $status,
-            'customer_name' => $customerName,
-            'order_type' => $orderType,
-            'table_number' => $tableNumber,
-            'payment_method' => $paymentMethod,
+            'customer_name' => htmlspecialchars(strip_tags($customerName)), // XSS Protection
+            'order_type' => htmlspecialchars(strip_tags($orderType)),
+            'table_number' => htmlspecialchars(strip_tags($tableNumber)),
+            'payment_method' => htmlspecialchars(strip_tags($paymentMethod)),
             'cash_received' => $cashReceived,
             'change' => $change,
             'transfer_proof' => $proofPath,
@@ -241,19 +256,22 @@ Route::post('/checkout', function (Request $request) {
         
         // Masukkan order items
         foreach ($cart as $item) {
+            // Validasi tipe data item
+            if (!isset($item['id'], $item['quantity'], $item['price'])) continue;
+            
             \App\Models\OrderItem::create([
                 'order_id' => $order->id,
-                'recipe_id' => $item['id'],
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
+                'recipe_id' => (int) $item['id'],
+                'quantity' => (int) $item['quantity'],
+                'price' => (float) $item['price'],
             ]);
         }
     
         return response()->json(['success' => true, 'order_id' => $order->id]);
     } catch (\Exception $e) {
-        return response()->json(['success' => false, 'message' => 'DB Error: ' . $e->getMessage()], 500);
+        return response()->json(['success' => false, 'message' => 'Terjadi kesalahan internal. Silakan coba lagi nanti.'], 500);
     }
-});
+})->middleware('throttle:10,1'); // Limit: Max 10 pesanan per menit per IP
 
 // Halaman Riwayat Transaksi (Khusus Admin)
 Route::get('/transactions', function () {
