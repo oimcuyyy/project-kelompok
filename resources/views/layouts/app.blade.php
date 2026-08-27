@@ -374,7 +374,7 @@
                         return;
                     }
 
-                    if (this.imgbbApiKey === '0dadc727261b9f40dd61091b169dd797' || this.imgbbApiKey.trim() === '') {
+                    if (this.imgbbApiKey.trim() === '' || this.imgbbApiKey.includes('YOUR_IMGBB')) {
                         Swal.fire('API Key ImgBB Belum Diatur!', 'Anda belum memasukkan API Key ImgBB pada baris kode (imgbbApiKey) di app.blade.php', 'error');
                         event.target.value = '';
                         return;
