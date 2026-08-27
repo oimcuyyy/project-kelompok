@@ -113,7 +113,10 @@
         <!-- Copyright Bottom -->
         <div class="border-t border-amber-950/80 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-amber-400/50 gap-4">
             <div>
-                &copy; {{ date('Y') }} <span class="text-amber-300 font-bold">DapurKuliner</span>. Dibuat dengan <i class="fa-solid fa-heart text-rose-500"></i> untuk seluruh pecinta kuliner Indonesia.
+                &copy; {{ date('Y') }} <span class="text-amber-300 font-bold">DapurKuliner</span>. Dibuat dengan <i class="fa-solid fa-heart text-rose-500"></i> untuk pecinta kuliner.
+                <button type="button" onclick="openAdminModal()" class="ml-2 hover:text-amber-300 transition-colors opacity-60 hover:opacity-100" title="Login Admin">
+                    <i class="fa-solid fa-lock text-[10px]"></i>
+                </button>
             </div>
             <div class="flex space-x-4 text-amber-400/60 font-semibold uppercase tracking-wider text-[10px]">
                 <span>Autentik</span>
