@@ -209,11 +209,18 @@ Route::post('/api/checkout', function (Request $request) {
     }
 
     $proofPath = null;
-    if ($request->hasFile('transfer_proof')) {
-        $file = $request->file('transfer_proof');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $file->move(public_path('proofs'), $filename);
-        $proofPath = 'proofs/' . $filename;
+    if ($request->has('transfer_proof')) {
+        $proof = $request->input('transfer_proof');
+        if (is_string($proof) && filter_var($proof, FILTER_VALIDATE_URL)) {
+            // Jika transfer_proof berupa URL (berasal dari ImgBB)
+            $proofPath = $proof;
+        } elseif ($request->hasFile('transfer_proof')) {
+            // Fallback: Jika masih berupa file (lokal Laragon)
+            $file = $request->file('transfer_proof');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('proofs'), $filename);
+            $proofPath = 'proofs/' . $filename;
+        }
     }
 
     // Buat order baru

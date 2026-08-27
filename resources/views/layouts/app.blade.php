@@ -349,8 +349,13 @@
                 tableNumber: '',
                 paymentMethod: 'Tunai',
                 cashReceived: 0,
-                transferProof: null,
+                transferProof: null, // Berisi File object jika masih menunggu upload, atau URL String setelah upload berhasil
+                isUploadingImage: false,
                 staticQris: '00020101021126570011ID.DANA.WWW011893600915301409631402090140963140303UMI51440014ID.CO.QRIS.WWW0215ID10265005804710303UMI5204594553033605802ID5910Imzzzstore6015Kota Jakarta Se6105122706304F45D',
+                
+                // --- API KEY IMGBB ---
+                // GANTI STRING DI BAWAH INI DENGAN API KEY ANDA DARI api.imgbb.com
+                imgbbApiKey: '0dadc727261b9f40dd61091b169dd797',
                 
                 init() {
                     this.$watch('cart', value => {
@@ -358,25 +363,63 @@
                     });
                 },
 
-                // Fungsi Kompresi Gambar (Client-Side) agar ukuran file yang diupload HP tidak Error 413
+                // Fungsi Kompresi Gambar & Upload Otomatis ke ImgBB
                 async handleFileUpload(event) {
                     const file = event.target.files[0];
                     if (!file) return;
 
                     if (!file.type.startsWith('image/')) {
-                        this.transferProof = file;
+                        Swal.fire('Format Salah', 'Harap unggah file berupa gambar/foto.', 'error');
+                        event.target.value = '';
                         return;
                     }
 
-                    // Tampilkan loading saat kompresi
-                    const originalSize = (file.size / 1024 / 1024).toFixed(2);
+                    if (this.imgbbApiKey === 'YOUR_IMGBB_API_KEY_HERE' || this.imgbbApiKey.trim() === '') {
+                        Swal.fire('API Key ImgBB Belum Diatur!', 'Anda belum memasukkan API Key ImgBB pada baris kode (imgbbApiKey) di app.blade.php', 'error');
+                        event.target.value = '';
+                        return;
+                    }
+
+                    this.isUploadingImage = true;
                     
                     try {
-                        const compressedFile = await this.compressImage(file, 800, 0.7); // max 800px width/height, 70% quality
-                        this.transferProof = compressedFile;
+                        // 1. Kompresi gambar terlebih dahulu
+                        const compressedFile = await this.compressImage(file, 800, 0.7);
+                        
+                        // 2. Kirim ke ImgBB
+                        const formData = new FormData();
+                        formData.append('image', compressedFile);
+                        
+                        // Tampilkan loading upload
+                        Swal.fire({
+                            title: 'Mengunggah Gambar...',
+                            text: 'Mohon tunggu sebentar.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        const response = await fetch(`https://api.imgbb.com/1/upload?key=${this.imgbbApiKey}`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            this.transferProof = result.data.url; // Simpan URL, bukan file fisik
+                            Swal.close();
+                        } else {
+                            throw new Error('Gagal mengunggah ke ImgBB');
+                        }
                     } catch (error) {
-                        console.error('Compression error:', error);
-                        this.transferProof = file; // Fallback ke file original
+                        console.error('Upload error:', error);
+                        Swal.fire('Upload Gagal', 'Gagal memproses dan mengunggah gambar. Pastikan internet stabil.', 'error');
+                        event.target.value = '';
+                        this.transferProof = null;
+                    } finally {
+                        this.isUploadingImage = false;
                     }
                 },
 
@@ -567,7 +610,8 @@
                         formData.append('cash_received', this.paymentMethod === 'Tunai' ? this.cashReceived : 0);
                         formData.append('change', this.paymentMethod === 'Tunai' ? this.changeAmount : 0);
                         
-                        if (this.transferProof) {
+                        if (this.transferProof && typeof this.transferProof === 'string') {
+                            // Karena sudah diupload ke ImgBB, transferProof sekarang berisi string URL
                             formData.append('transfer_proof', this.transferProof);
                         }
 
