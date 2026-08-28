@@ -183,9 +183,9 @@ Route::get('/admin/force-login', function () {
 });
 
 Route::get('/admin/logout', function () {
-    session()->forget('is_admin');
-    cookie()->queue(cookie()->forget('is_admin_vercel'));
-    return redirect()->route('home')->with('success', 'Anda telah keluar dari Mode Admin.');
+    session()->flush();
+    $cookie = cookie('is_admin_vercel', 'false', -1);
+    return redirect()->route('home')->with('success', 'Anda telah keluar dari Mode Admin.')->withCookie($cookie);
 })->name('admin.logout');
 
 
