@@ -324,7 +324,7 @@
 
                         <!-- Cloudflare Turnstile untuk Anti Spam -->
                         <div class="mb-4 flex justify-center">
-                            <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY', '1x00000000000000000000AA') }}" data-theme="light"></div>
+                            <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY', '3x00000000000000000000FF') }}" data-theme="light"></div>
                         </div>
                         
                         <button 
