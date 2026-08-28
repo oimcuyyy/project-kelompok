@@ -56,6 +56,25 @@
                 <form id="admin-login-form" action="{{ route('admin.login') }}" method="POST" class="space-y-4 pt-2">
                     @csrf
                     <div>
+                        <label for="admin-email" class="block text-[11px] font-extrabold uppercase tracking-wider text-amber-300 mb-1.5">
+                            Email Admin
+                        </label>
+                        <div class="relative">
+                            <input
+                                type="email"
+                                id="admin-email"
+                                name="email"
+                                required
+                                autofocus
+                                placeholder="contoh@gmail.com"
+                                class="w-full bg-[#2a170d] border border-amber-900 focus:border-amber-500 rounded-2xl py-3 pl-4 pr-10 text-sm text-amber-100 placeholder-amber-400/40 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition"
+                            >
+                            <span class="absolute right-3.5 top-3.5 text-amber-400/60 text-sm">
+                                <i class="fa-solid fa-envelope"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div>
                         <label for="admin-password" class="block text-[11px] font-extrabold uppercase tracking-wider text-amber-300 mb-1.5">
                             Kata Sandi Admin
                         </label>
@@ -65,8 +84,7 @@
                                 id="admin-password"
                                 name="password"
                                 required
-                                autofocus
-                                placeholder="Ketik kata sandi (oimaja222555)"
+                                placeholder="Ketik kata sandi"
                                 class="w-full bg-[#2a170d] border border-amber-900 focus:border-amber-500 rounded-2xl py-3 pl-4 pr-10 text-sm text-amber-100 placeholder-amber-400/40 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition"
                             >
                             <span class="absolute right-3.5 top-3.5 text-amber-400/60 text-sm">

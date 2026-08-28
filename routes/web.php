@@ -157,12 +157,11 @@ Route::get('/admin/login', function () {
     return redirect()->route('home', ['admin' => 1]);
 });
 
-Route::post('/admin/login', function (Request $request) {
+Route::post('/admin/login', function (\Illuminate\Http\Request $request) {
+    $email = $request->input('email');
     $password = $request->input('password');
-    // Admin password
-    $adminPassword = env('ADMIN_PASSWORD', 'admin123');
 
-    if ($password === $adminPassword || $password === 'oimaja222555' || $password === 'admin123') {
+    if ($email === 'belajarmandiri03034@gmail.com' && $password === 'oimaja25') {
         session(['is_admin' => true]);
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -172,9 +171,9 @@ Route::post('/admin/login', function (Request $request) {
     }
 
     if ($request->ajax() || $request->wantsJson()) {
-        return response()->json(['success' => false, 'message' => 'Kata sandi admin salah!'], 422);
+        return response()->json(['success' => false, 'message' => 'Email atau kata sandi admin salah!'], 401);
     }
-    return redirect()->back()->with('error', 'Kata sandi admin salah!');
+    return redirect()->back()->with('error', 'Email atau kata sandi admin salah!');
 })->name('admin.login');
 
 Route::get('/admin/force-login', function () {
