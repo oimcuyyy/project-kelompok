@@ -89,6 +89,11 @@
                             <span class="text-amber-500">›</span> Rahasia Dapur Koki
                         </a>
                     </li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="toggleAdminModal()" class="hover:text-amber-300 transition-colors flex items-center gap-2">
+                            <span class="text-amber-500">›</span> Login Administrator
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -112,7 +117,7 @@
 
         <!-- Copyright Bottom -->
         <div class="border-t border-amber-950/80 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-amber-400/50 gap-4">
-            <div>
+            <div class="cursor-pointer select-none" ondblclick="toggleAdminModal()" title="Klik ganda untuk membuka Mode Admin">
                 &copy; {{ date('Y') }} <span class="text-amber-300 font-bold">DapurKuliner</span>. Dibuat dengan <i class="fa-solid fa-heart text-rose-500"></i> untuk seluruh pecinta kuliner Indonesia.
             </div>
             <div class="flex space-x-4 text-amber-400/60 font-semibold uppercase tracking-wider text-[10px]">

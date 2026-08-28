@@ -105,7 +105,7 @@
 
                 <div class="pt-2 text-center border-t border-amber-950">
                     <span class="text-[11px] text-amber-400/60 font-medium">
-                        💡 Shortcut: Tekan <strong class="text-amber-300 bg-[#2a170d] px-2 py-0.5 rounded border border-amber-900">Ctrl + Shift + L</strong> kapan saja.
+                        💡 Kamu juga bisa klik ganda pada teks Copyright di footer untuk membuka jendela ini.
                     </span>
                 </div>
             </div>
