@@ -23,31 +23,6 @@
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        serif: ['"Playfair Display"', 'Georgia', 'serif'],
-                    },
-                    colors: {
-                        resto: {
-                            dark: '#1c120c',
-                            wood: '#431407',
-                            amber: '#d97706',
-                            gold: '#f59e0b',
-                            cream: '#faf5ee',
-                            warm: '#f5ede2',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
     <!-- Vite Assets (CSS & JS) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
