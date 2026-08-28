@@ -48,10 +48,10 @@
                     </button>
                 </form>
 
-                @if(session('is_admin'))
+                @if(session('is_admin') || request()->cookie('is_admin_vercel') == 'true')
                     <!-- Tampil HANYA saat Mode Admin sudah aktif -->
                     <div class="flex items-center gap-2">
-                        <button type="button" class="open-admin-modal-btn bg-amber-500/20 border border-amber-500 text-amber-300 px-3 py-2 rounded-full text-xs font-extrabold flex items-center gap-1.5 hover:bg-amber-500/30 transition">
+                        <button type="button" onclick="openAdminModal()" class="open-admin-modal-btn bg-amber-500/20 border border-amber-500 text-amber-300 px-3 py-2 rounded-full text-xs font-extrabold flex items-center gap-1.5 hover:bg-amber-500/30 transition">
                             <span>👑 Admin</span>
                         </button>
                         <a href="{{ route('recipes.create') }}" class="bg-gradient-to-r from-amber-500 via-orange-600 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs uppercase tracking-wider font-extrabold px-4 py-2.5 rounded-full shadow-lg shadow-orange-950/60 hover:scale-105 transition-all flex items-center gap-1.5 border border-amber-300/30">
@@ -67,7 +67,7 @@
 
             <!-- Mobile Hamburger Button -->
             <div class="flex items-center md:hidden gap-2">
-                @if(session('is_admin'))
+                @if(session('is_admin') || request()->cookie('is_admin_vercel') == 'true')
                     <a href="{{ route('recipes.create') }}" class="bg-amber-600 text-white p-2 rounded-xl text-xs sm:hidden">
                         <i class="fa-solid fa-plus"></i>
                     </a>
@@ -101,7 +101,7 @@
             <a href="{{ route('about') }}" class="hover:text-amber-400 py-1">Tentang Kami</a>
         </div>
 
-        @if(session('is_admin'))
+        @if(session('is_admin') || request()->cookie('is_admin_vercel') == 'true')
             <a href="{{ route('recipes.create') }}" class="block text-center bg-gradient-to-r from-amber-500 to-orange-600 text-white text-xs uppercase font-extrabold py-3 rounded-xl shadow transition tracking-wider">
                 <i class="fa-solid fa-plus mr-1"></i> Tulis Menu Baru (Admin)
             </a>

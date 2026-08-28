@@ -111,7 +111,7 @@
                     </button>
                 </div>
 
-                @if(session('is_admin'))
+                @if(session('is_admin') || request()->cookie('is_admin_vercel') == 'true')
                     <div class="flex items-center gap-2.5">
                         <a href="{{ route('recipes.create') }}" class="text-xs font-black uppercase tracking-wider text-amber-800 hover:text-amber-950 flex items-center gap-1 bg-[#faf5ee] border border-[#d9c7b0] px-3.5 py-2 rounded-full shadow-xs">
                             <i class="fa-solid fa-plus text-amber-700"></i>

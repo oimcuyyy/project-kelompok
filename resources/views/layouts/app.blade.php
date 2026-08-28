@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Tailwind CSS CDN -->
@@ -50,7 +51,7 @@
     <!-- Vite Assets (CSS & JS) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased bg-[#fdfaf5] text-stone-800 flex flex-col min-h-screen selection:bg-amber-500 selection:text-white" x-data="kasirApp()" @keydown.window.ctrl.shift.l.prevent="toggleAdminModal()" @keydown.window.alt.a.prevent="toggleAdminModal()">
+<body class="font-sans antialiased bg-[#fdfaf5] text-stone-800 flex flex-col min-h-screen selection:bg-amber-500 selection:text-white" x-data="kasirApp()">
 
     <!-- Header / Navbar Resto -->
     @include('layouts.partials.navbar')
@@ -321,23 +322,15 @@
                             <p class="text-orange-700 text-2xl" x-text="formatRupiah(totalPrice)"></p>
                         </div>
 
-                        <!-- Math Captcha untuk Anti Spam -->
-                        <div class="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-xl">
-                            <label class="block text-sm font-bold text-orange-800 mb-2">
-                                <i class="fa-solid fa-shield-halved mr-1"></i> Anti Spam: Berapa hasil dari <span x-text="captchaA"></span> + <span x-text="captchaB"></span>?
-                            </label>
-                            <input 
-                                type="number" 
-                                x-model="captchaAnswer" 
-                                class="w-full bg-white text-gray-800 border-2 border-orange-200 rounded-lg px-4 py-3 outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all font-bold text-lg"
-                                placeholder="Jawaban Anda..."
-                            >
+                        <!-- Cloudflare Turnstile untuk Anti Spam -->
+                        <div class="mb-4 flex justify-center">
+                            <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY', '1x00000000000000000000AA') }}" data-theme="light"></div>
                         </div>
                         
                         <button 
                             @click="checkout()"
-                            :disabled="isProcessing || isUploadingImage || (paymentMethod === 'Tunai' && cashReceived < totalPrice) || (parseInt(captchaAnswer) !== (captchaA + captchaB))"
-                            :class="(isProcessing || isUploadingImage || (paymentMethod === 'Tunai' && cashReceived < totalPrice) || (parseInt(captchaAnswer) !== (captchaA + captchaB))) ? 'opacity-50 cursor-not-allowed bg-stone-400' : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-lg shadow-amber-600/30'"
+                            :disabled="isProcessing || isUploadingImage || (paymentMethod === 'Tunai' && cashReceived < totalPrice)"
+                            :class="(isProcessing || isUploadingImage || (paymentMethod === 'Tunai' && cashReceived < totalPrice)) ? 'opacity-50 cursor-not-allowed bg-stone-400' : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-lg shadow-amber-600/30'"
                             class="w-full flex items-center justify-center gap-2 rounded-full border border-transparent px-6 py-4 text-sm font-extrabold text-white uppercase tracking-widest transition-all"
                         >
                             <i class="fa-solid fa-check-double" x-show="!isProcessing"></i>
@@ -608,6 +601,14 @@
                         formData.append('cash_received', this.paymentMethod === 'Tunai' ? this.cashReceived : 0);
                         formData.append('change', this.paymentMethod === 'Tunai' ? this.changeAmount : 0);
                         
+                        const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+                        if (!turnstileToken) {
+                            Swal.fire({ icon: 'warning', title: 'Verifikasi Gagal', text: 'Silakan selesaikan validasi Anti-Spam (Cloudflare Turnstile) terlebih dahulu.', confirmButtonColor: '#d97706' });
+                            this.isProcessing = false;
+                            return;
+                        }
+                        formData.append('cf-turnstile-response', turnstileToken);
+                        
                         if (this.transferProof && typeof this.transferProof === 'string') {
                             formData.append('transfer_proof', this.transferProof);
                         }
@@ -642,12 +643,15 @@
                                 this.cart = []; this.cashReceived = 0; this.customerName = ''; this.tableNumber = ''; this.transferProof = null; this.isPaymentOpen = false;
                                 if (document.getElementById('transferProofInput')) document.getElementById('transferProofInput').value = '';
                                 if (document.getElementById('qrisProofInput')) document.getElementById('qrisProofInput').value = '';
+                                if (window.turnstile) turnstile.reset();
                             });
                         } else {
+                            if (window.turnstile) turnstile.reset();
                             Swal.fire({ icon: 'error', title: 'Gagal', text: result.message || 'Gagal melakukan pesanan.', confirmButtonColor: '#d97706' });
                         }
                     } catch (error) {
                         console.error('Checkout error:', error);
+                        if (window.turnstile) turnstile.reset();
                         Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan sistem atau ukuran file terlalu besar untuk server.', confirmButtonColor: '#d97706' });
                     } finally {
                         this.isProcessing = false;

@@ -139,7 +139,7 @@
                                 </span>
                             </div>
 
-                            @if(session('is_admin'))
+                            @if(session('is_admin') || request()->cookie('is_admin_vercel') == 'true')
                                 <!-- Quick Admin Actions on Card -->
                                 <div class="mt-3 pt-3 border-t border-amber-100 flex items-center justify-between gap-2" onclick="event.stopPropagation();">
                                     <a href="{{ route('recipes.edit', $recipe->id) }}" class="flex-1 text-center bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-black uppercase py-1.5 rounded-xl border border-amber-300 transition">

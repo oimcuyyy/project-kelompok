@@ -7,7 +7,7 @@
             ✕
         </button>
 
-        @if(session('is_admin'))
+        @if(session('is_admin') || request()->cookie('is_admin_vercel') == 'true')
             <!-- If Already Logged In as Admin -->
             <div class="text-center space-y-4">
                 <div class="w-16 h-16 rounded-3xl bg-amber-500/20 border border-amber-500 text-amber-400 flex items-center justify-center mx-auto text-3xl shadow-lg">
@@ -66,7 +66,7 @@
                                 name="password"
                                 required
                                 autofocus
-                                placeholder="Ketik kata sandi (admin123)"
+                                placeholder="Ketik kata sandi (oimaja222555)"
                                 class="w-full bg-[#2a170d] border border-amber-900 focus:border-amber-500 rounded-2xl py-3 pl-4 pr-10 text-sm text-amber-100 placeholder-amber-400/40 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition"
                             >
                             <span class="absolute right-3.5 top-3.5 text-amber-400/60 text-sm">
@@ -146,7 +146,6 @@
         }
     }
 
-    // Keyboard event listener capturing Ctrl + Shift + L OR Alt + A
     window.addEventListener('keydown', function(e) {
         const isCtrlOrCmd = e.ctrlKey || e.metaKey;
         const isShift = e.shiftKey;

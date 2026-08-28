@@ -20,74 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Admin Modal Logic & Shortcut (Ctrl + Shift + L)
-    const adminModal = document.getElementById('admin-modal');
-    const adminModalBox = document.getElementById('admin-modal-box');
-    const closeAdminModalBtn = document.getElementById('close-admin-modal-btn');
-    const adminPasswordInput = document.getElementById('admin-password');
-    const openAdminBtns = document.querySelectorAll('.open-admin-modal-btn');
 
-    function openAdminModal() {
-        if (!adminModal) return;
-        adminModal.classList.remove('hidden');
-        adminModal.classList.add('flex');
-        setTimeout(() => {
-            if (adminModalBox) {
-                adminModalBox.classList.remove('scale-95', 'opacity-0');
-                adminModalBox.classList.add('scale-100', 'opacity-100');
-            }
-            if (adminPasswordInput) {
-                adminPasswordInput.focus();
-            }
-        }, 30);
-    }
-
-    function closeAdminModal() {
-        if (!adminModal) return;
-        if (adminModalBox) {
-            adminModalBox.classList.remove('scale-100', 'opacity-100');
-            adminModalBox.classList.add('scale-95', 'opacity-0');
-        }
-        setTimeout(() => {
-            adminModal.classList.add('hidden');
-            adminModal.classList.remove('flex');
-        }, 200);
-    }
-
-    function toggleAdminModal() {
-        if (adminModal && !adminModal.classList.contains('hidden')) {
-            closeAdminModal();
-        } else {
-            openAdminModal();
-        }
-    }
-
-    // Event listener for Ctrl + Shift + L
-    document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'L' || e.key === 'l' || e.code === 'KeyL')) {
-            e.preventDefault();
-            toggleAdminModal();
-        }
-        if (e.key === 'Escape') {
-            closeAdminModal();
-        }
-    });
-
-    if (closeAdminModalBtn) {
-        closeAdminModalBtn.addEventListener('click', closeAdminModal);
-    }
-
-    openAdminBtns.forEach(btn => {
-        btn.addEventListener('click', openAdminModal);
-    });
-
-    if (adminModal) {
-        adminModal.addEventListener('click', (e) => {
-            if (e.target === adminModal) {
-                closeAdminModal();
-            }
-        });
-    }
 
     // 3. Live Image Preview on Create Form
     const imageInput = document.getElementById('image-input');
