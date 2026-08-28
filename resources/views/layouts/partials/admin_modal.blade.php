@@ -119,7 +119,7 @@
     function openAdminModal() {
         const modal = document.getElementById('admin-modal');
         const box = document.getElementById('admin-modal-box');
-        const input = document.getElementById('admin-password');
+        const input = document.getElementById('admin-email'); // Fokus ke email dulu
         if (!modal) return;
         modal.classList.remove('hidden');
         modal.classList.add('flex');
