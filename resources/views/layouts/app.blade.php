@@ -603,11 +603,18 @@
 
                         let result;
                         try {
-                            if (response.status !== 429) { // we already handled 429
-                                result = await response.json();
+                            if (response.status !== 429) { 
+                                // Clone response agar bisa dibaca dua kali
+                                const resClone = response.clone();
+                                try {
+                                    result = await response.json();
+                                } catch (e) {
+                                    const errText = await resClone.text();
+                                    throw new Error('Server Return (Bukan JSON): ' + errText.substring(0, 150));
+                                }
                             }
                         } catch (e) {
-                            throw new Error('Respon server tidak valid atau terjadi error sistem.');
+                            throw new Error(e.message || 'Respon server tidak valid atau terjadi error sistem.');
                         }
                         
                         if (result.success) {
