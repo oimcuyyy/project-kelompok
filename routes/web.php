@@ -8,8 +8,10 @@ use Illuminate\Support\Facades\Artisan;
 // Temporary route to migrate and seed the database on Vercel
 Route::get('/admin/setup-db', function () {
     try {
+        $conn = DB::connection()->getDriverName();
+        $dbName = DB::connection()->getDatabaseName();
         Artisan::call('migrate:fresh', ['--force' => true, '--seed' => true]);
-        return 'Database successfully migrated and seeded to SUPABASE! <a href="/">Go to Home</a>';
+        return 'Database successfully migrated and seeded to SUPABASE! <br> Driver used: ' . $conn . '<br> Database Name: ' . $dbName . '<br><a href="/">Go to Home</a>';
     } catch (\Exception $e) {
         return 'Error: ' . $e->getMessage();
     }
