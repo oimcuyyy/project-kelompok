@@ -589,16 +589,23 @@
                         
                         if (response.status === 413) {
                             Swal.fire({ icon: 'error', title: 'Gagal', text: 'Ukuran foto bukti pembayaran terlalu besar.', confirmButtonColor: '#d97706' });
+                            this.isProcessing = false;
                             return;
                         }
                         if (response.status === 429) {
-                            Swal.fire({ icon: 'error', title: 'Terlalu Cepat', text: 'Sistem mendeteksi spam! Tunggu sebentar.', confirmButtonColor: '#d97706' });
+                            let result;
+                            try { result = await response.json(); } catch(e) {}
+                            const msg = result && result.message ? result.message : 'Sistem mendeteksi spam! Tunggu sebentar.';
+                            Swal.fire({ icon: 'error', title: 'Terlalu Cepat', text: msg, confirmButtonColor: '#d97706' });
+                            this.isProcessing = false;
                             return;
                         }
 
                         let result;
                         try {
-                            result = await response.json();
+                            if (response.status !== 429) { // we already handled 429
+                                result = await response.json();
+                            }
                         } catch (e) {
                             throw new Error('Respon server tidak valid atau terjadi error sistem.');
                         }
