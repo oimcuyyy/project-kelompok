@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <!-- Turnstile script disabled to prevent JS crash -->
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Vite Assets (CSS & JS) -->
@@ -286,6 +286,7 @@
                                     <label class="block text-xs font-bold text-purple-900 mb-1">Unggah Bukti Pembayaran QRIS</label>
                                     <input type="file" id="qrisProofInput" @change="handleFileUpload($event)" accept="image/*" class="w-full text-xs text-stone-600 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200">
                                 </div>
+                            </div>
                         </div>
 
                     </div>
@@ -297,11 +298,7 @@
                             <p class="text-orange-700 text-2xl" x-text="formatRupiah(totalPrice)"></p>
                         </div>
 
-                        <!-- Cloudflare Turnstile untuk Anti Spam -->
-                        <div class="mb-4 flex justify-center">
-                            <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY', '3x00000000000000000000FF') }}" data-theme="light"></div>
-                        </div>
-                        
+
                         <button 
                             @click="checkout()"
                             :disabled="isProcessing || isUploadingImage || (paymentMethod === 'Tunai' && cashReceived < totalPrice)"
@@ -576,14 +573,7 @@
                         formData.append('cash_received', this.paymentMethod === 'Tunai' ? this.cashReceived : 0);
                         formData.append('change', this.paymentMethod === 'Tunai' ? this.changeAmount : 0);
                         
-                        const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
-                        if (!turnstileToken) {
-                            Swal.fire({ icon: 'warning', title: 'Verifikasi Gagal', text: 'Silakan selesaikan validasi Anti-Spam (Cloudflare Turnstile) terlebih dahulu.', confirmButtonColor: '#d97706' });
-                            this.isProcessing = false;
-                            return;
-                        }
-                        formData.append('cf-turnstile-response', turnstileToken);
-                        
+
                         if (this.transferProof && typeof this.transferProof === 'string') {
                             formData.append('transfer_proof', this.transferProof);
                         }

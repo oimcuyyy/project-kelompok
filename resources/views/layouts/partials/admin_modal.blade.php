@@ -1,4 +1,4 @@
-<!-- Admin Authentication & Management Modal (Ctrl + Shift + L) -->
+<!-- Admin Authentication & Management Modal (Ctrl + Q / Alt + A / Ctrl + Shift + L) -->
 <div id="admin-modal" class="fixed inset-0 z-[9999] {{ request()->has('admin') ? 'flex' : 'hidden' }} items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-300">
     <div class="relative w-full max-w-md bg-[#1c120c] border border-amber-600/60 rounded-3xl p-6 sm:p-8 shadow-2xl text-amber-100 transform transition-all {{ request()->has('admin') ? 'scale-100 opacity-100' : 'scale-95 opacity-0' }}" id="admin-modal-box">
         
@@ -103,11 +103,6 @@
                     </button>
                 </form>
 
-                <div class="pt-2 text-center border-t border-amber-950">
-                    <span class="text-[11px] text-amber-400/60 font-medium">
-                        💡 Kamu juga bisa klik ganda pada teks Copyright di footer untuk membuka jendela ini.
-                    </span>
-                </div>
             </div>
         @endif
 
@@ -155,7 +150,12 @@
         }, 300);
     }
 
+    let isToggling = false;
     function toggleAdminModal() {
+        if (isToggling) return;
+        isToggling = true;
+        setTimeout(() => isToggling = false, 350);
+
         const modal = document.getElementById('admin-modal');
         if (modal && !modal.classList.contains('hidden')) {
             closeAdminModal();
@@ -164,15 +164,15 @@
         }
     }
 
-    window.addEventListener('keydown', function(e) {
-        const isCtrlOrCmd = e.ctrlKey || e.metaKey;
-        const isShift = e.shiftKey;
-        const isAlt = e.altKey;
-        
-        const isLKey = (e.key === 'L' || e.key === 'l' || e.code === 'KeyL' || e.keyCode === 76 || e.which === 76);
-        const isAKey = (e.key === 'A' || e.key === 'a' || e.code === 'KeyA' || e.keyCode === 65 || e.which === 65);
+    const handleAdminShortcut = function(e) {
+        // Abaikan jika sedang mengetik di input, textarea, atau select (misal: form transaksi)
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
 
-        if ((isCtrlOrCmd && isShift && isLKey) || (isAlt && isAKey)) {
+        // Deteksi ekstrim untuk Ctrl+Shift+L
+        if (e.ctrlKey && e.shiftKey && (e.key === 'l' || e.key === 'L' || e.code === 'KeyL' || e.keyCode === 76)) {
+            // HANYA izinkan di halaman utama (Beranda)
+            if (window.location.pathname !== '/') return;
+            
             e.preventDefault();
             e.stopPropagation();
             toggleAdminModal();
@@ -182,7 +182,28 @@
         if (e.key === 'Escape' || e.keyCode === 27) {
             closeAdminModal();
         }
-    }, true);
+    };
+
+    window.addEventListener('keydown', handleAdminShortcut, true);
+    // Tambahkan kembali keyup karena browser (seperti Bitwarden) memblokir keydown Ctrl+Shift+L
+    window.addEventListener('keyup', handleAdminShortcut, true);
+
+    // EMERGENCY SHORTCUT: Ketik kata "login" secara cepat di keyboard
+    let typedStr = '';
+    window.addEventListener('keypress', function(e) {
+        // Abaikan jika sedang mengetik di input, textarea, atau select
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+        // HANYA izinkan di halaman utama (Beranda)
+        if (window.location.pathname !== '/') return;
+
+        typedStr += e.key.toLowerCase();
+        if (typedStr.length > 5) typedStr = typedStr.slice(-5);
+        if (typedStr === 'login') {
+            openAdminModal();
+            typedStr = '';
+        }
+    });
 
     // Auto-open modal if URL contains admin parameter
     document.addEventListener('DOMContentLoaded', function() {

@@ -158,10 +158,23 @@ Route::get('/admin/login', function () {
 });
 
 Route::post('/admin/login', function (\Illuminate\Http\Request $request) {
+    $key = 'login_attempts_' . $request->ip();
+
+    if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 3)) {
+        $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($key);
+        $message = "Terlalu banyak percobaan. Coba lagi dalam {$seconds} detik.";
+        
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => false, 'message' => $message], 429);
+        }
+        return redirect()->back()->with('error', $message);
+    }
+
     $email = $request->input('email');
     $password = $request->input('password');
 
     if ($email === 'belajarmandiri03034@gmail.com' && $password === 'oimaja25') {
+        \Illuminate\Support\Facades\RateLimiter::clear($key);
         session(['is_admin' => true]);
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -169,6 +182,8 @@ Route::post('/admin/login', function (\Illuminate\Http\Request $request) {
         }
         return redirect()->route('transactions.index')->cookie('is_admin_vercel', 'true', 10080)->with('success', 'Selamat datang di Dashboard Admin!');
     }
+
+    \Illuminate\Support\Facades\RateLimiter::hit($key, 60);
 
     if ($request->ajax() || $request->wantsJson()) {
         return response()->json(['success' => false, 'message' => 'Email atau kata sandi admin salah!'], 401);
@@ -198,35 +213,32 @@ Route::post('/checkout', function (Request $request) {
 
     // 1. Validasi Input ketat untuk mencegah injeksi & payload raksasa
     $request->validate([
-        'cf-turnstile-response' => 'required',
-        'total_price' => 'required|numeric|min:0',
         'customer_name' => 'nullable|string|max:100', // Batasi panjang nama
         'order_type' => 'required|string|in:Dine In,Takeaway',
         'table_number' => 'nullable|string|max:20',
         'payment_method' => 'required|string|in:Tunai,Transfer,QRIS',
-        'cash_received' => 'nullable|numeric|min:0',
-        'change' => 'nullable|numeric|min:0',
     ]);
 
-    // 1.5 Validasi Cloudflare Turnstile
-    $turnstileResponse = \Illuminate\Support\Facades\Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-        'secret' => env('TURNSTILE_SECRET_KEY', '1x0000000000000000000000000000000AA'), // Dummy key agar pass saat development
-        'response' => $request->input('cf-turnstile-response'),
-        'remoteip' => $request->ip()
-    ]);
-
-    if (!$turnstileResponse->json('success')) {
-        return response()->json(['success' => false, 'message' => 'Validasi Anti-Spam (Turnstile) gagal. Coba muat ulang.'], 400);
+    // 0.5 Limit Pesanan Gantung (Maksimal 2 per sesi)
+    $pendingOrders = session('pending_orders', []);
+    if (!empty($pendingOrders)) {
+        $pendingOrders = \App\Models\Order::whereIn('id', $pendingOrders)
+            ->whereIn('status', ['pending', 'unpaid'])
+            ->pluck('id')
+            ->toArray();
+        session(['pending_orders' => $pendingOrders]);
+    }
+    
+    if (count($pendingOrders) >= 2) {
+        return response()->json(['success' => false, 'message' => 'Anda memiliki 2 pesanan yang belum dibayar. Harap selesaikan pembayaran sebelumnya atau hubungi kasir.'], 400);
     }
 
     $cart = is_string($request->input('cart')) ? json_decode($request->input('cart'), true) : $request->input('cart');
-    $totalPrice = $request->input('total_price');
     $customerName = $request->input('customer_name');
     $orderType = $request->input('order_type', 'Dine In');
     $tableNumber = $request->input('table_number');
     $paymentMethod = $request->input('payment_method', 'Tunai');
     $cashReceived = $request->input('cash_received', 0);
-    $change = $request->input('change', 0);
 
     if (!$cart || empty($cart) || !is_array($cart)) {
         return response()->json(['success' => false, 'message' => 'Keranjang kosong atau tidak valid!'], 400);
@@ -237,12 +249,59 @@ Route::post('/checkout', function (Request $request) {
         return response()->json(['success' => false, 'message' => 'Terlalu banyak item dalam satu pesanan (Maks 50).'], 400);
     }
 
+    // === VALIDASI PAYLOAD & HARGA DARI DATABASE ===
+    $calculatedTotalPrice = 0;
+    $validCart = [];
+    foreach ($cart as $item) {
+        if (!isset($item['id'], $item['quantity'])) continue;
+        
+        $recipe = \App\Models\Recipe::find($item['id']);
+        if (!$recipe) {
+            return response()->json(['success' => false, 'message' => 'Terdapat menu yang tidak valid/tidak ditemukan dalam keranjang.'], 400);
+        }
+        
+        $qty = (int) $item['quantity'];
+        if ($qty <= 0) continue;
+        
+        $price = $recipe->price;
+        $calculatedTotalPrice += ($price * $qty);
+        
+        $validCart[] = [
+            'id' => $recipe->id,
+            'quantity' => $qty,
+            'price' => $price
+        ];
+    }
+    
+    if (empty($validCart)) {
+        return response()->json(['success' => false, 'message' => 'Keranjang kosong atau tidak valid!'], 400);
+    }
+
+    // Hitung kembalian secara backend (jika Tunai)
+    $change = 0;
+    if ($paymentMethod === 'Tunai') {
+        if ($cashReceived < $calculatedTotalPrice) {
+            return response()->json(['success' => false, 'message' => 'Uang tunai kurang dari total tagihan!'], 400);
+        }
+        $change = $cashReceived - $calculatedTotalPrice;
+    }
+
     if ($orderType === 'Dine In') {
         if (empty(trim($tableNumber))) {
             return response()->json(['success' => false, 'message' => 'Nomor meja wajib diisi untuk Makan di Tempat!'], 400);
         }
         if (empty(trim($customerName))) {
             return response()->json(['success' => false, 'message' => 'Nama pelanggan wajib diisi untuk Makan di Tempat!'], 400);
+        }
+
+        // Blokir Meja Sibuk: Cek apakah ada pesanan pending/unpaid di meja yang sama
+        $isTableBusy = \App\Models\Order::where('table_number', trim($tableNumber))
+            ->where('order_type', 'Dine In')
+            ->whereIn('status', ['pending', 'unpaid'])
+            ->exists();
+
+        if ($isTableBusy) {
+            return response()->json(['success' => false, 'message' => "Meja nomor {$tableNumber} sedang sibuk (masih ada pesanan pending/belum lunas)."], 400);
         }
     }
 
@@ -269,27 +328,30 @@ Route::post('/checkout', function (Request $request) {
         session(['last_order_time' => now()]);
 
         $order = \App\Models\Order::create([
-            'total_price' => $totalPrice,
+            'total_price' => $calculatedTotalPrice, // Gunakan harga hasil kalkulasi backend
             'status' => $status,
             'customer_name' => htmlspecialchars(strip_tags($customerName)), // XSS Protection
             'order_type' => htmlspecialchars(strip_tags($orderType)),
             'table_number' => htmlspecialchars(strip_tags($tableNumber)),
             'payment_method' => htmlspecialchars(strip_tags($paymentMethod)),
-            'cash_received' => $cashReceived,
+            'cash_received' => $paymentMethod === 'Tunai' ? $cashReceived : 0,
             'change' => $change,
             'transfer_proof' => $proofPath,
         ]);
         
+        // Simpan ke sesi pesanan gantung
+        if (in_array($status, ['pending', 'unpaid'])) {
+            $pendingOrders[] = $order->id;
+            session(['pending_orders' => $pendingOrders]);
+        }
+
         // Masukkan order items
-        foreach ($cart as $item) {
-            // Validasi tipe data item
-            if (!isset($item['id'], $item['quantity'], $item['price'])) continue;
-            
+        foreach ($validCart as $item) {
             \App\Models\OrderItem::create([
                 'order_id' => $order->id,
-                'recipe_id' => (int) $item['id'],
-                'quantity' => (int) $item['quantity'],
-                'price' => (float) $item['price'],
+                'recipe_id' => $item['id'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
             ]);
         }
     
@@ -297,7 +359,7 @@ Route::post('/checkout', function (Request $request) {
     } catch (\Exception $e) {
         return response()->json(['success' => false, 'message' => 'Terjadi kesalahan internal. Silakan coba lagi nanti.'], 500);
     }
-})->middleware('throttle:10,1'); // Limit: Max 10 pesanan per menit per IP
+})->middleware('throttle:5,1'); // Limit: Max 5 pesanan per menit per IP
 
 // Halaman Riwayat Transaksi (Khusus Admin)
 Route::get('/transactions', function () {
