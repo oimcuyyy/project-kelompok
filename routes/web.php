@@ -3,17 +3,6 @@
 use App\Models\Recipe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
-
-// Temporary route to migrate and seed the database on Vercel
-Route::get('/admin/setup-db', function () {
-    try {
-        Artisan::call('migrate:fresh', ['--force' => true, '--seed' => true]);
-        return 'Database successfully migrated and seeded! <a href="/">Go to Home</a>';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
 
 // Halaman Beranda (Hero)
 Route::get('/', function () {
