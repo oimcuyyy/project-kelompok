@@ -624,7 +624,7 @@
                     } catch (error) {
                         console.error('Checkout error:', error);
                         if (window.turnstile) turnstile.reset();
-                        Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan sistem atau ukuran file terlalu besar untuk server.', confirmButtonColor: '#d97706' });
+                        Swal.fire({ icon: 'error', title: 'Error', text: error.message || 'Terjadi kesalahan sistem.', confirmButtonColor: '#d97706' });
                     } finally {
                         this.isProcessing = false;
                     }

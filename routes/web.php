@@ -3,6 +3,16 @@
 use App\Models\Recipe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+
+Route::get('/ping-db', function () {
+    try {
+        $result = DB::select('SELECT 1');
+        return response()->json(['status' => 'ok', 'db' => 'connected', 'data' => $result]);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+});
 
 // Halaman Beranda (Hero)
 Route::get('/', function () {
@@ -219,6 +229,8 @@ Route::post('/checkout', function (Request $request) {
         'payment_method' => 'required|string|in:Tunai,Transfer,QRIS',
     ]);
 
+    try {
+
     // 0.5 Limit Pesanan Gantung (Maksimal 2 per sesi)
     $pendingOrders = session('pending_orders', []);
     if (!empty($pendingOrders)) {
@@ -323,8 +335,7 @@ Route::post('/checkout', function (Request $request) {
     // Buat order baru
     $status = ($paymentMethod === 'Tunai') ? 'success' : 'pending';
 
-    try {
-        // Catat waktu order di session untuk mencegah spam bot (Cooldown 15 detik)
+
         session(['last_order_time' => now()]);
 
         $order = \App\Models\Order::create([
@@ -357,7 +368,7 @@ Route::post('/checkout', function (Request $request) {
     
         return response()->json(['success' => true, 'order_id' => $order->id]);
     } catch (\Exception $e) {
-        return response()->json(['success' => false, 'message' => 'Terjadi kesalahan internal. Silakan coba lagi nanti.'], 500);
+        return response()->json(['success' => false, 'message' => 'Internal Error: ' . $e->getMessage() . ' at line ' . $e->getLine()], 500);
     }
 });
 
