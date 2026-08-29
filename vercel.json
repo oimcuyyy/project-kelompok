@@ -39,8 +39,6 @@
         "SESSION_DRIVER": "cookie",
         "SESSION_LIFETIME": "10080",
         "LOG_CHANNEL": "single",
-        "DB_CONNECTION": "sqlite",
-        "DB_DATABASE": "/tmp/database_v2.sqlite",
         "BROADCAST_CONNECTION": "log",
         "BROADCAST_DRIVER": "log",
         "FILESYSTEM_DISK": "local",
