@@ -14,6 +14,46 @@ Route::get('/ping-db', function () {
     }
 });
 
+Route::get('/admin/setup-db', function () {
+    try {
+        // Buat tabel orders
+        DB::statement("
+            CREATE TABLE IF NOT EXISTS orders (
+                id BIGSERIAL PRIMARY KEY,
+                total_price DECIMAL(10,2) NOT NULL,
+                status VARCHAR(50) DEFAULT 'pending',
+                customer_name VARCHAR(100),
+                order_type VARCHAR(50) DEFAULT 'Dine In',
+                table_number VARCHAR(20),
+                payment_method VARCHAR(50) DEFAULT 'Tunai',
+                cash_received DECIMAL(10,2) DEFAULT 0,
+                change DECIMAL(10,2) DEFAULT 0,
+                transfer_proof VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        ");
+
+        // Buat tabel order_items
+        DB::statement("
+            CREATE TABLE IF NOT EXISTS order_items (
+                id BIGSERIAL PRIMARY KEY,
+                order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
+                recipe_id BIGINT,
+                quantity INT NOT NULL,
+                price DECIMAL(10,2) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        ");
+
+        return response()->json(['success' => true, 'message' => 'Tabel orders dan order_items berhasil dibuat!']);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => 'Gagal membuat tabel: ' . $e->getMessage()]);
+    }
+});
+
+
 // Halaman Beranda (Hero)
 Route::get('/', function () {
     $totalRecipes = Recipe::count();
