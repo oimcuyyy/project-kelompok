@@ -359,7 +359,7 @@ Route::post('/checkout', function (Request $request) {
     } catch (\Exception $e) {
         return response()->json(['success' => false, 'message' => 'Terjadi kesalahan internal. Silakan coba lagi nanti.'], 500);
     }
-})->middleware('throttle:5,1'); // Limit: Max 5 pesanan per menit per IP
+});
 
 // Halaman Riwayat Transaksi (Khusus Admin)
 Route::get('/transactions', function () {
