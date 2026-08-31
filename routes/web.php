@@ -238,9 +238,9 @@ Route::post('/checkout', function (Request $request) {
     // 1. Validasi Input ketat untuk mencegah injeksi & payload raksasa
     $request->validate([
         'customer_name' => 'nullable|string|max:100', // Batasi panjang nama
-        'order_type' => 'required|string|in:Dine In,Takeaway',
+        'order_type' => 'required|string|in:Dine In,Take Away',
         'table_number' => 'nullable|string|max:20',
-        'payment_method' => 'required|string|in:Tunai,Transfer,QRIS',
+        'payment_method' => 'required|string|in:Tunai,Midtrans',
     ]);
 
     try {
@@ -331,20 +331,6 @@ Route::post('/checkout', function (Request $request) {
         }
     }
 
-    $proofPath = null;
-    if ($request->has('transfer_proof') && !empty($request->transfer_proof)) {
-        $proof = $request->input('transfer_proof');
-        if (is_string($proof) && filter_var($proof, FILTER_VALIDATE_URL)) {
-            $proofPath = $proof;
-        } elseif ($request->hasFile('transfer_proof')) {
-            $file = $request->file('transfer_proof');
-            // Validasi ukuran dan ekstensi file gambar
-            $request->validate(['transfer_proof' => 'image|mimes:jpeg,png,jpg|max:5120']);
-            $filename = time() . '_' . substr(preg_replace('/[^a-zA-Z0-9.]/', '', $file->getClientOriginalName()), -30);
-            $file->move(public_path('proofs'), $filename);
-            $proofPath = 'proofs/' . $filename;
-        }
-    }
 
     // Buat order baru
     $status = ($paymentMethod === 'Tunai') ? 'success' : 'pending';
@@ -361,7 +347,7 @@ Route::post('/checkout', function (Request $request) {
             'payment_method' => htmlspecialchars(strip_tags($paymentMethod)),
             'cash_received' => $paymentMethod === 'Tunai' ? $cashReceived : 0,
             'change' => $change,
-            'transfer_proof' => $proofPath,
+            'transfer_proof' => null,
         ]);
         
         // Simpan ke sesi pesanan gantung
@@ -379,6 +365,31 @@ Route::post('/checkout', function (Request $request) {
                 'price' => $item['price'],
             ]);
         }
+
+        // Generate Snap Token jika metode Midtrans
+        if ($paymentMethod === 'Midtrans') {
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('midtrans.is_production');
+            \Midtrans\Config::$isSanitized = true;
+            \Midtrans\Config::$is3ds = true;
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $order->id,
+                    'gross_amount' => $calculatedTotalPrice,
+                ],
+                'customer_details' => [
+                    'first_name' => $customerName ?: 'Guest',
+                ],
+            ];
+
+            try {
+                $snapToken = \Midtrans\Snap::getSnapToken($params);
+                return response()->json(['success' => true, 'order_id' => $order->id, 'snap_token' => $snapToken]);
+            } catch (\Exception $e) {
+                return response()->json(['success' => false, 'message' => 'Midtrans Error: ' . $e->getMessage()], 500);
+            }
+        }
     
         return response()->json(['success' => true, 'order_id' => $order->id]);
     } catch (\Exception $e) {
@@ -393,8 +404,38 @@ Route::get('/transactions', function () {
     }
     
     $orders = \App\Models\Order::with('items.menu')->latest()->get();
-    return view('transactions', compact('orders'));
+    $maintenanceData = file_exists(storage_path('app/maintenance.json')) ? json_decode(file_get_contents(storage_path('app/maintenance.json')), true) : [];
+    
+    return view('transactions', compact('orders', 'maintenanceData'));
 })->name('transactions.index');
+
+Route::get('/admin/maintenance', function () {
+    if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) {
+        return redirect()->route('home', ['admin' => 1])->with('error', 'Akses terbatas!');
+    }
+    
+    $maintenanceData = file_exists(storage_path('app/maintenance.json')) ? json_decode(file_get_contents(storage_path('app/maintenance.json')), true) : [];
+    
+    return view('maintenance-admin', compact('maintenanceData'));
+})->name('admin.maintenance.index');
+
+Route::post('/admin/maintenance', function (Request $request) {
+    if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) return back();
+    
+    $file = storage_path('app/maintenance.json');
+    if ($request->status === 'on') {
+        $data = [
+            'estimated_time' => $request->estimated_time,
+            'admin_name' => $request->admin_name,
+            'message' => $request->message,
+        ];
+        file_put_contents($file, json_encode($data));
+        return back()->with('success', 'Mode Pengembangan berhasil diaktifkan! Pengunjung awam akan melihat halaman maintenance.');
+    } else {
+        if (file_exists($file)) unlink($file);
+        return back()->with('success', 'Mode Pengembangan dimatikan. Website berjalan normal.');
+    }
+})->name('admin.maintenance.toggle');
 
 Route::post('/orders/{id}/verify', function ($id) {
     if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) return back();
@@ -418,3 +459,6 @@ Route::get('/orders/check-new', function (Illuminate\Http\Request $request) {
     $newOrders = \App\Models\Order::where('created_at', '>', $lastCheck)->count();
     return response()->json(['new_orders' => $newOrders, 'timestamp' => now()->toDateTimeString()]);
 });
+use App\Http\Controllers\CheckoutController;
+Route::get('/midtrans-checkout', [CheckoutController::class, 'process']);
+Route::post('/midtrans-callback', [CheckoutController::class, 'callback']);

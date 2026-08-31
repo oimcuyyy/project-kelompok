@@ -25,6 +25,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Vite Assets (CSS & JS) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <!-- Midtrans Snap JS -->
+    <script src="https://app.{{ config('midtrans.is_production') ? '' : 'sandbox.' }}midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
 </head>
 <body class="font-sans antialiased bg-[#fdfaf5] text-stone-800 flex flex-col min-h-screen selection:bg-amber-500 selection:text-white" x-data="kasirApp()">
 
@@ -238,10 +241,9 @@
                         <!-- Payment Method -->
                         <div class="mb-4 space-y-3">
                             <label class="block text-sm font-bold text-stone-700 mb-1">Metode Pembayaran</label>
-                            <div class="flex gap-2">
+                            <div class="flex gap-2 flex-wrap">
                                 <button @click="paymentMethod = 'Tunai'" :class="paymentMethod === 'Tunai' ? 'bg-green-600 text-white' : 'bg-white text-stone-600'" class="flex-1 py-2 px-2 border border-stone-200 rounded-lg font-bold text-xs"><i class="fa-solid fa-money-bill-wave mb-1 block"></i>Tunai</button>
-                                <button @click="paymentMethod = 'Transfer'" :class="paymentMethod === 'Transfer' ? 'bg-blue-600 text-white' : 'bg-white text-stone-600'" class="flex-1 py-2 px-2 border border-stone-200 rounded-lg font-bold text-xs"><i class="fa-solid fa-building-columns mb-1 block"></i>Transfer</button>
-                                <button @click="paymentMethod = 'QRIS'" :class="paymentMethod === 'QRIS' ? 'bg-purple-600 text-white' : 'bg-white text-stone-600'" class="flex-1 py-2 px-2 border border-stone-200 rounded-lg font-bold text-xs"><i class="fa-solid fa-qrcode mb-1 block"></i>QRIS</button>
+                                <button @click="paymentMethod = 'Midtrans'" :class="paymentMethod === 'Midtrans' ? 'bg-orange-600 text-white' : 'bg-white text-stone-600'" class="flex-1 py-2 px-2 border border-stone-200 rounded-lg font-bold text-xs"><i class="fa-solid fa-credit-card mb-1 block"></i>Bayar Online (QRIS/Transfer)</button>
                             </div>
                         </div>
 
@@ -261,33 +263,6 @@
                                     <span class="font-black text-xl text-green-600" x-text="formatRupiah(changeAmount)"></span>
                                 </div>
                         </div>
-                        
-                        <div x-show="paymentMethod === 'Transfer'">
-                            <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                                <h3 class="font-bold text-blue-800 mb-2"><i class="fa-solid fa-building-columns"></i> Info Rekening</h3>
-                                <p class="text-sm text-blue-900 mb-3">BCA Virtual Account<br><b>8801 2938 1029 4812</b><br>(a.n. DapurKuliner Resto)</p>
-                                
-                                <div class="mt-2">
-                                    <label class="block text-xs font-bold text-blue-900 mb-1">Unggah Bukti Transfer</label>
-                                    <input type="file" id="transferProofInput" @change="handleFileUpload($event)" accept="image/*" class="w-full text-xs text-stone-600 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div x-show="paymentMethod === 'QRIS'">
-                            <div class="p-4 bg-purple-50 border border-purple-200 rounded-xl text-center">
-                                <h3 class="font-bold text-purple-800 mb-2"><i class="fa-solid fa-qrcode"></i> QRIS Pembayaran</h3>
-                                <div class="bg-white p-4 inline-block rounded-lg shadow-sm mb-2 border border-purple-100">
-                                    <img :src="totalPrice > 0 ? 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(dynamicQris) : 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=Kosong'" alt="QRIS Code" class="w-48 h-48 mx-auto">
-                                </div>
-                                <p class="text-xs text-purple-900 mb-3">Silakan scan dengan aplikasi e-Wallet atau m-Banking Anda.</p>
-                                
-                                <div class="mt-2 text-left">
-                                    <label class="block text-xs font-bold text-purple-900 mb-1">Unggah Bukti Pembayaran QRIS</label>
-                                    <input type="file" id="qrisProofInput" @change="handleFileUpload($event)" accept="image/*" class="w-full text-xs text-stone-600 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200">
-                                </div>
-                            </div>
-                        </div>
 
                     </div>
 
@@ -301,8 +276,8 @@
 
                         <button 
                             @click="checkout()"
-                            :disabled="isProcessing || isUploadingImage || (paymentMethod === 'Tunai' && cashReceived < totalPrice)"
-                            :class="(isProcessing || isUploadingImage || (paymentMethod === 'Tunai' && cashReceived < totalPrice)) ? 'opacity-50 cursor-not-allowed bg-stone-400' : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-lg shadow-amber-600/30'"
+                            :disabled="isProcessing || (paymentMethod === 'Tunai' && cashReceived < totalPrice)"
+                            :class="(isProcessing || (paymentMethod === 'Tunai' && cashReceived < totalPrice)) ? 'opacity-50 cursor-not-allowed bg-stone-400' : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-lg shadow-amber-600/30'"
                             class="w-full flex items-center justify-center gap-2 rounded-full border border-transparent px-6 py-4 text-sm font-extrabold text-white uppercase tracking-widest transition-all"
                         >
                             <i class="fa-solid fa-check-double" x-show="!isProcessing"></i>
@@ -558,10 +533,6 @@
                             Swal.fire({ icon: 'warning', title: 'Oops...', text: 'Uang tunai kurang!', confirmButtonColor: '#d97706' });
                             return;
                         }
-                        if ((this.paymentMethod === 'Transfer' || this.paymentMethod === 'QRIS') && !this.transferProof) {
-                            Swal.fire({ icon: 'warning', title: 'Oops...', text: 'Mohon unggah bukti transfer/pembayaran!', confirmButtonColor: '#d97706' });
-                            return;
-                        }
                         
                         let formData = new FormData();
                         formData.append('cart', JSON.stringify(this.cart));
@@ -573,25 +544,15 @@
                         formData.append('cash_received', this.paymentMethod === 'Tunai' ? this.cashReceived : 0);
                         formData.append('change', this.paymentMethod === 'Tunai' ? this.changeAmount : 0);
                         
-
-                        if (this.transferProof && typeof this.transferProof === 'string') {
-                            formData.append('transfer_proof', this.transferProof);
-                        }
-
                         const response = await fetch('/checkout', {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json'
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
                             },
                             body: formData
                         });
-                        
-                        if (response.status === 413) {
-                            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Ukuran foto bukti pembayaran terlalu besar.', confirmButtonColor: '#d97706' });
-                            this.isProcessing = false;
-                            return;
-                        }
                         if (response.status === 429) {
                             let result;
                             try { result = await response.json(); } catch(e) {}
@@ -618,15 +579,43 @@
                         }
                         
                         if (result.success) {
-                            Swal.fire({ icon: 'success', title: 'Pesanan Berhasil!', text: 'Terima kasih atas pesanan Anda.', confirmButtonColor: '#059669' }).then(() => {
-                                this.cart = []; this.cashReceived = 0; this.customerName = ''; this.tableNumber = ''; this.transferProof = null; this.isPaymentOpen = false;
-                                if (document.getElementById('transferProofInput')) document.getElementById('transferProofInput').value = '';
-                                if (document.getElementById('qrisProofInput')) document.getElementById('qrisProofInput').value = '';
-                                if (window.turnstile) turnstile.reset();
-                            });
+                            if (result.snap_token) {
+                                // Buka pop-up Midtrans
+                                snap.pay(result.snap_token, {
+                                    onSuccess: (snapResult) => {
+                                        Swal.fire({ icon: 'success', title: 'Pembayaran Berhasil!', text: 'Pesanan telah dibayar.', confirmButtonColor: '#059669' }).then(() => {
+                                            this.cart = []; this.cashReceived = 0; this.customerName = ''; this.tableNumber = ''; this.transferProof = null; this.isPaymentOpen = false;
+                                            if (window.turnstile) turnstile.reset();
+                                        });
+                                    },
+                                    onPending: (snapResult) => {
+                                        Swal.fire({ icon: 'info', title: 'Menunggu Pembayaran', text: 'Silakan selesaikan pembayaran Anda.', confirmButtonColor: '#3b82f6' }).then(() => {
+                                            this.cart = []; this.cashReceived = 0; this.customerName = ''; this.tableNumber = ''; this.transferProof = null; this.isPaymentOpen = false;
+                                            if (window.turnstile) turnstile.reset();
+                                        });
+                                    },
+                                    onError: (snapResult) => {
+                                        Swal.fire({ icon: 'error', title: 'Pembayaran Gagal', text: 'Transaksi gagal diproses.', confirmButtonColor: '#ef4444' });
+                                    },
+                                    onClose: () => {
+                                        Swal.fire({ icon: 'warning', title: 'Belum Selesai', text: 'Anda menutup pop-up sebelum menyelesaikan pembayaran.', confirmButtonColor: '#f59e0b' });
+                                    }
+                                });
+                            } else {
+                                Swal.fire({ icon: 'success', title: 'Pesanan Berhasil!', text: 'Terima kasih atas pesanan Anda.', confirmButtonColor: '#059669' }).then(() => {
+                                    this.cart = []; this.cashReceived = 0; this.customerName = ''; this.tableNumber = ''; this.transferProof = null; this.isPaymentOpen = false;
+                                    if (document.getElementById('transferProofInput')) document.getElementById('transferProofInput').value = '';
+                                    if (document.getElementById('qrisProofInput')) document.getElementById('qrisProofInput').value = '';
+                                    if (window.turnstile) turnstile.reset();
+                                });
+                            }
                         } else {
                             if (window.turnstile) turnstile.reset();
-                            Swal.fire({ icon: 'error', title: 'Gagal', text: result.message || 'Gagal melakukan pesanan.', confirmButtonColor: '#d97706' });
+                            let errorMsg = result.message || 'Gagal melakukan pesanan.';
+                            if (result.errors) {
+                                errorMsg = Object.values(result.errors).flat().join('\n');
+                            }
+                            Swal.fire({ icon: 'error', title: 'Gagal', text: errorMsg, confirmButtonColor: '#d97706' });
                         }
                     } catch (error) {
                         console.error('Checkout error:', error);

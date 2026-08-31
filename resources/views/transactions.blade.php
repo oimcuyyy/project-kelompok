@@ -11,6 +11,8 @@
         </div>
     </div>
 
+
+
     @if($orders->isEmpty())
         <div class="text-center py-16 bg-white rounded-3xl border border-[#d9c7b0]">
             <i class="fa-solid fa-receipt text-5xl text-stone-300 mb-4"></i>

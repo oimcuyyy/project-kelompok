@@ -12,11 +12,14 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            \App\Http\Middleware\MaintenanceMode::class,
+        ]);
         // Percayai semua proxy di serverless (Vercel / Cloudflare) agar HTTPS terdeteksi
         $middleware->trustProxies(at: '*');
-        // Nonaktifkan CSRF untuk login karena issue Vercel Serverless
         $middleware->validateCsrfTokens(except: [
             '/admin/login',
+            '/midtrans-callback',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

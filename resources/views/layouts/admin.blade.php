@@ -100,7 +100,14 @@
                 <span>Tambah Menu</span>
             </a>
 
-            <p class="px-3 text-[10px] font-black text-stone-500 uppercase tracking-widest mb-2 mt-8">Akses Publik</p>
+            <p class="px-3 text-[10px] font-black text-stone-500 uppercase tracking-widest mb-2 mt-6">Pengaturan</p>
+            
+            <a href="{{ route('admin.maintenance.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold {{ request()->routeIs('admin.maintenance.index') ? 'bg-amber-600 text-white shadow-md' : 'text-stone-300 hover:bg-stone-800 hover:text-white' }}">
+                <i class="fa-solid fa-person-digging w-5 text-center {{ request()->routeIs('admin.maintenance.index') ? 'text-amber-200' : 'text-stone-400' }}"></i>
+                <span>Mode Pengembangan</span>
+            </a>
+
+            <p class="px-3 text-[10px] font-black text-stone-500 uppercase tracking-widest mb-2 mt-6">Akses Publik</p>
             
             <a href="{{ route('home') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-stone-300 hover:bg-stone-800 hover:text-white">
                 <i class="fa-solid fa-store w-5 text-center text-stone-400"></i>
