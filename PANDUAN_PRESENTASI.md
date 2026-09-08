@@ -21,6 +21,8 @@ Seluruh file dalam proyek ini telah dipisahkan secara rapi:
 | **Pengaturan Route & API** | `routes/web.php` | Mengatur logika URL, pencarian menu, filter, proteksi admin, dan Endpoint API `/api/checkout` untuk memproses pesanan keranjang ke database. |
 | **Model & Database** | `app/Models/` (Recipe, Order, OrderItem) | Entitas data Eloquent Laravel. Menghubungkan menu, data pesanan (Order), dan detail pesanan (OrderItem). |
 | **Data 30+ Menu (Seeder)** | `database/seeders/RecipeSeeder.php` | Data awal 31 menu masakan lengkap beserta harga dan pencarian gambar otomatis via API Bing Thumbnail. |
+| **Controller Checkout & Midtrans** | `app/Http/Controllers/CheckoutController.php` | Menangani logika pembayaran dan integrasi API Midtrans. |
+| **Halaman Mode Perawatan (Maintenance)** | `resources/views/maintenance.blade.php` & `maintenance-admin.blade.php` | Tampilan saat website sedang dalam mode maintenance dengan akses khusus admin. |
 
 ---
 
@@ -34,6 +36,7 @@ Seluruh file dalam proyek ini telah dipisahkan secara rapi:
 6. **Integrasi Eksternal**: **Bing Image Search / Thumbnail API** (untuk mengambil gambar menu yang selalu akurat sesuai nama makanannya).
 7. **Asset Bundler**: **Vite** untuk build aset.
 8. **Local Web Server**: **Laragon** di OS Windows.
+9. **Payment Gateway**: **Midtrans** (untuk simulasi pembayaran online secara real-time dan aman).
 
 ---
 
@@ -53,6 +56,14 @@ Seluruh file dalam proyek ini telah dipisahkan secara rapi:
    - Masukkan password: **`admin123`** (atau `admin`).
    - Tunjukkan tombol baru **"Riwayat Transaksi"**.
    - Buka halaman tersebut untuk membuktikan bahwa data pesanan yang dibayar di poin 3 sebelumnya telah benar-benar **disimpan secara permanen ke database SQLite** (beserta detail menu dan harga totalnya).
+5. **Integrasi Pembayaran Midtrans**:
+   - Pilih metode pembayaran **"Midtrans"** saat melakukan checkout.
+   - Akan muncul halaman atau *popup* dari Midtrans untuk simulasi pembayaran menggunakan berbagai macam metode (Transfer Bank, QRIS, e-Wallet).
+   - Tunjukkan bagaimana pembayaran secara real-time mengubah status pesanan.
+6. **Mode Pengembangan / Maintenance Mode**:
+   - Buka halaman "Mode Pengembangan" atau klik icon gerigi di panel Admin.
+   - Aktifkan mode pengembangan dengan memasukkan estimasi waktu dan alasan.
+   - Buka aplikasi di jendela browser lain atau mode *Incognito* untuk menunjukkan bahwa pengunjung biasa akan diarahkan ke halaman "Sedang dalam Perbaikan", sementara Admin tetap bisa menggunakan aplikasi seperti biasa.
 
 ---
 
@@ -65,7 +76,7 @@ Seluruh file dalam proyek ini telah dipisahkan secara rapi:
 > *"DapurKuliner Resto adalah platform pemesanan makanan layaknya kasir online (Point of Sale). Tujuannya mendigitalisasi proses pemesanan restoran, di mana pelanggan bisa memilih menu, melihat deksripsi komposisi, memasukkannya ke keranjang belanja interaktif, dan langsung memproses pesanan ke dalam database."*
 >
 > **Teknologi & Fitur Unggulan:**
-> *"Aplikasi ini dibangun dengan Laravel, Tailwind CSS, dan Alpine.js untuk fitur keranjang belanja yang real-time tanpa perlu loading halaman. Kami juga mengintegrasikan API eksternal untuk pencarian gambar otomatis yang akurat. Selain itu, pesanan pelanggan diproses langsung melalui sistem API ke database SQLite, yang buktinya dapat dilihat pada panel Riwayat Transaksi khusus Admin."*
+> *"Aplikasi ini dibangun dengan Laravel, Tailwind CSS, dan Alpine.js untuk fitur keranjang belanja yang real-time tanpa perlu loading halaman. Kami juga mengintegrasikan API eksternal untuk pencarian gambar otomatis yang akurat. Fitur terbaru yang kami tambahkan adalah integrasi **Payment Gateway Midtrans** untuk simulasi pembayaran online asli (seperti QRIS dan e-Wallet), serta **Maintenance Mode** yang memungkinkan Admin untuk membatasi akses pengunjung saat website sedang diperbaiki. Semua pesanan pelanggan diproses langsung ke database SQLite, yang buktinya dapat dilihat pada panel Riwayat Transaksi khusus Admin."*
 >
 > **Penutup:**
 > *"Sekian presentasi dari kami, terima kasih banyak dan kami siap menjawab pertanyaan."*

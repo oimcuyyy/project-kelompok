@@ -9,6 +9,12 @@
             <h1 class="text-2xl sm:text-3xl font-black font-serif text-[#29170e]">Dashboard & Riwayat Pesanan</h1>
             <p class="text-stone-600 mt-2 text-sm sm:text-base">Kelola pesanan pelanggan dan verifikasi pembayaran transfer.</p>
         </div>
+        <div>
+            <a href="{{ route('admin.transactions.export') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-md hover:bg-emerald-700 hover:shadow-lg transition-all focus:ring focus:ring-emerald-200">
+                <i class="fa-solid fa-file-excel"></i>
+                <span>Download Transaksi</span>
+            </a>
+        </div>
     </div>
 
 

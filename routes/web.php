@@ -409,6 +409,14 @@ Route::get('/transactions', function () {
     return view('transactions', compact('orders', 'maintenanceData'));
 })->name('transactions.index');
 
+Route::get('/admin/transactions/export', function () {
+    if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) {
+        return redirect()->route('home', ['admin' => 1])->with('error', 'Akses terbatas! Hanya Admin yang dapat mendownload transaksi.');
+    }
+    return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\TransactionsExport, 'riwayat-transaksi-dapurkuliner-' . date('Y-m-d') . '.xlsx');
+})->name('admin.transactions.export');
+
+
 Route::get('/admin/maintenance', function () {
     if ((!session('is_admin') && request()->cookie('is_admin_vercel') !== 'true')) {
         return redirect()->route('home', ['admin' => 1])->with('error', 'Akses terbatas!');
