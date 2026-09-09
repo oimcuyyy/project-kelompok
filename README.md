@@ -1,5 +1,6 @@
 <div align="center">
-  <img src="public/favicon.svg" alt="DapurKuliner Logo" width="150" />
+  <br />
+  <img src="public/favicon.svg" alt="DapurKuliner Logo" width="150" height="150" />
   
   <br/>
   
