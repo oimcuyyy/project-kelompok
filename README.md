@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://ui-avatars.com/api/?name=Dapur+Kuliner&background=431407&color=fcd34d&size=150&rounded=true&bold=true" alt="DapurKuliner Logo" />
+  <img src="public/favicon.svg" alt="DapurKuliner Logo" width="150" />
   
   <br/>
   
