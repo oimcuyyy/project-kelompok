@@ -127,6 +127,10 @@
                 </div>
             @endforeach
         </div>
+        
+        <div class="mt-8">
+            {{ $orders->links() }}
+        </div>
     @endif
 </div>
 

@@ -55,9 +55,7 @@
     <!-- Mobile Header (Hamburger) -->
     <div class="md:hidden bg-[#2a170d] text-white p-4 flex items-center justify-between shadow-md z-40 sticky top-0">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-[#2a170d] font-black text-sm">
-                DK
-            </div>
+            <img src="{{ asset('favicon.svg') }}" alt="Logo" class="w-9 h-9 drop-shadow-md">
             <span class="font-serif font-bold text-lg">Admin Panel</span>
         </div>
         <button @click="sidebarOpen = !sidebarOpen" class="text-amber-100 hover:text-white focus:outline-none">
@@ -73,9 +71,7 @@
         <!-- Sidebar Header -->
         <div class="p-6 flex items-center justify-between border-b border-amber-900/50">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-[#2a170d] font-black text-lg shadow-lg">
-                    DK
-                </div>
+                <img src="{{ asset('favicon.svg') }}" alt="Logo" class="w-11 h-11 drop-shadow-lg">
                 <div>
                     <h2 class="font-serif font-black text-xl leading-tight">Admin</h2>
                     <p class="text-[10px] text-amber-400 font-bold tracking-widest uppercase">DapurKuliner</p>

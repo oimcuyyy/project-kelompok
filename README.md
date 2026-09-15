@@ -63,6 +63,20 @@ Ingin mencoba menjalankan proyek ini di laptop atau komputer lokal Anda? Ikuti l
    php artisan key:generate
    ```
 
+   **Penting!** Buka file `.env` tersebut dan atur konfigurasi berikut agar aplikasi berjalan lancar:
+   ```env
+   # Kredensial Login Admin (Ganti dengan data Anda)
+   ADMIN_EMAIL=email_admin_anda@gmail.com
+   ADMIN_PASSWORD=password_rahasia
+
+   # Konfigurasi Midtrans Payment Gateway
+   MIDTRANS_MERCHANT_ID=your_merchant_id
+   MIDTRANS_SERVER_KEY=your_server_key
+   MIDTRANS_CLIENT_KEY=your_client_key
+   MIDTRANS_IS_PRODUCTION=false
+   ```
+   *(Catatan: Anda juga perlu mengatur `imgbbApiKey` di dalam file `resources/views/layouts/app.blade.php` untuk fitur upload gambar).*
+
 4. **Siapkan Database (SQLite)**
    Buat file database kosong (untuk Windows):
    ```bash
@@ -92,10 +106,7 @@ Ingin mencoba menjalankan proyek ini di laptop atau komputer lokal Anda? Ikuti l
 Sebagai admin, Anda memiliki kendali penuh untuk menambah, mengubah, atau menghapus menu hidangan, serta memantau riwayat transaksi yang masuk.
 
 - Buka *login popup* tersembunyi dengan menekan tombol **`Ctrl + Shift + L`** di halaman web.
-- **Email:** `belajarmandiri03034@gmail.com`
-- **Password:** `oimaja25`
-
-*(Pastikan mengubah kredensial ini di mode produksi demi keamanan).*
+- Masukkan Email dan Password Admin sesuai dengan yang telah Anda atur di file `.env` (lihat bagian Konfigurasi Environment).
 
 ---
 

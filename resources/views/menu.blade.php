@@ -177,5 +177,9 @@
                 </div>
             @endforelse
         </div>
+
+        <div class="mt-8">
+            {{ $recipes->links() }}
+        </div>
     </section>
 @endsection
