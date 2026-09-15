@@ -9,17 +9,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\CheckoutController;
 
-// Temporary route to migrate and seed the database on Vercel
-Route::get('/admin/setup-db', function () {
-    try {
-        $conn = DB::connection()->getDriverName();
-        $dbName = DB::connection()->getDatabaseName();
-        Artisan::call('migrate:fresh', ['--force' => true, '--seed' => true]);
-        return 'Database successfully migrated and seeded to SUPABASE! <br> Driver used: ' . $conn . '<br> Database Name: ' . $dbName . '<br><a href="/">Go to Home</a>';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
+
 
 Route::get('/ping-db', function () {
     try {
@@ -47,7 +37,7 @@ Route::get('/recipe/{id}', [RecipeController::class, 'show'])->name('recipes.sho
 Route::get('/admin', function () { return redirect()->route('home', ['admin' => 1]); });
 Route::get('/admin/login', function () { return redirect()->route('home', ['admin' => 1]); });
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
-Route::get('/admin/force-login', [AdminController::class, 'forceLogin']);
+
 Route::get('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
 Route::get('/admin/maintenance', [AdminController::class, 'maintenance'])->name('admin.maintenance.index');
 Route::post('/admin/maintenance', [AdminController::class, 'toggleMaintenance'])->name('admin.maintenance.toggle');

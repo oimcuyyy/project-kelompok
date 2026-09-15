@@ -25,9 +25,9 @@ class AdminController extends Controller
         $password = $request->input('password');
 
         $adminEmail = env('ADMIN_EMAIL', 'belajarmandiri03034@gmail.com');
-        $adminPassword = env('ADMIN_PASSWORD', 'oimaja25');
+        $adminPasswordHash = env('ADMIN_PASSWORD_HASH', '$2y$10$DCs5p3yYAhJSwGYch68mLuYOGtkcAOMvG9LuNIgKHTjib3vkSgp3u');
 
-        if ($email === $adminEmail && $password === $adminPassword) {
+        if ($email === $adminEmail && \Illuminate\Support\Facades\Hash::check($password, $adminPasswordHash)) {
             RateLimiter::clear($key);
             session(['is_admin' => true]);
 
@@ -45,11 +45,7 @@ class AdminController extends Controller
         return redirect()->back()->with('error', 'Email atau kata sandi admin salah!');
     }
 
-    public function forceLogin()
-    {
-        session(['is_admin' => true]);
-        return redirect()->route('transactions.index')->cookie('is_admin_vercel', 'true', 10080)->with('success', 'Berhasil masuk melalui jalur khusus!');
-    }
+
 
     public function logout()
     {

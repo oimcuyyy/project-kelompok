@@ -201,7 +201,7 @@ class CheckoutController extends Controller
         $serverKey = config('midtrans.server_key');
         $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
         
-        if ($hashed == $request->signature_key) {
+        if (hash_equals($hashed, $request->signature_key)) {
             $order = \App\Models\Order::find($request->order_id);
             if ($order) {
                 if ($request->transaction_status == 'capture' || $request->transaction_status == 'settlement') {
