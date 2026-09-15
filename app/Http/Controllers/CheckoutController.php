@@ -20,8 +20,11 @@ class CheckoutController extends Controller
     public function checkout(Request $request)
     {
         $lastOrderTime = session('last_order_time');
-        if ($lastOrderTime && now()->diffInSeconds($lastOrderTime) < 15) {
-            return response()->json(['success' => false, 'message' => 'Anda memesan terlalu cepat. Silakan tunggu 15 detik.'], 429);
+        if ($lastOrderTime) {
+            $diff = abs(now()->diffInSeconds(\Carbon\Carbon::parse($lastOrderTime)));
+            if ($diff < 15) {
+                return response()->json(['success' => false, 'message' => 'Anda memesan terlalu cepat. Silakan tunggu 15 detik.'], 429);
+            }
         }
 
         $request->validate([
