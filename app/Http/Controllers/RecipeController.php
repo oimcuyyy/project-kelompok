@@ -49,12 +49,15 @@ class RecipeController extends Controller
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
             'category'     => 'required|string|max:100',
+            'cooking_time' => 'required|numeric|min:1',
             'price'        => 'required|numeric|min:0',
             'image'        => 'required|url',
             'description'  => 'required|string|max:2000',
         ], [
             'title.required'        => 'Judul resep wajib diisi.',
             'category.required'     => 'Kategori resep wajib dipilih.',
+            'cooking_time.required' => 'Waktu masak wajib diisi.',
+            'cooking_time.min'      => 'Waktu masak minimal 1 menit.',
             'price.required'        => 'Harga wajib diisi.',
             'price.min'             => 'Harga tidak boleh negatif.',
             'image.required'        => 'URL gambar wajib diisi.',
@@ -106,12 +109,15 @@ class RecipeController extends Controller
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
             'category'     => 'required|string|max:100',
+            'cooking_time' => 'required|numeric|min:1',
             'price'        => 'required|numeric|min:0',
             'image'        => 'required|url',
             'description'  => 'required|string|max:2000',
         ], [
             'title.required'        => 'Judul resep wajib diisi.',
             'category.required'     => 'Kategori resep wajib dipilih.',
+            'cooking_time.required' => 'Waktu masak wajib diisi.',
+            'cooking_time.min'      => 'Waktu masak minimal 1 menit.',
             'price.required'        => 'Harga wajib diisi.',
             'price.min'             => 'Harga tidak boleh negatif.',
             'image.required'        => 'URL gambar wajib diisi.',

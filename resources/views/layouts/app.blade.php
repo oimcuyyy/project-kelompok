@@ -280,9 +280,10 @@
                             :class="(isProcessing || (paymentMethod === 'Tunai' && cashReceived < totalPrice)) ? 'opacity-50 cursor-not-allowed bg-stone-400' : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-lg shadow-amber-600/30'"
                             class="w-full flex items-center justify-center gap-2 rounded-full border border-transparent px-6 py-4 text-sm font-extrabold text-white uppercase tracking-widest transition-all"
                         >
-                            <i class="fa-solid fa-check-double" x-show="!isProcessing"></i>
+                            <i class="fa-solid fa-check-double" x-show="!isProcessing && !currentSnapToken"></i>
+                            <i class="fa-solid fa-arrow-rotate-right" x-show="!isProcessing && currentSnapToken"></i>
                             <i class="fa-solid fa-spinner fa-spin" x-show="isProcessing"></i>
-                            <span x-text="isProcessing ? 'Memproses...' : 'Konfirmasi Pembayaran'"></span>
+                            <span x-text="isProcessing ? 'Memproses...' : (currentSnapToken && paymentMethod === 'Midtrans' ? 'Lanjutkan Pembayaran' : 'Konfirmasi Pembayaran')"></span>
                         </button>
                     </div>
                 </div>
@@ -305,6 +306,7 @@
                 transferProof: null, // Berisi File object jika masih menunggu upload, atau URL String setelah upload berhasil
                 isUploadingImage: false,
                 isProcessing: false,
+                currentSnapToken: null,
                 captchaA: Math.floor(Math.random() * 10) + 1,
                 captchaB: Math.floor(Math.random() * 10) + 1,
                 captchaAnswer: '',
@@ -317,7 +319,12 @@
                 init() {
                     this.$watch('cart', value => {
                         localStorage.setItem('kasir_cart', JSON.stringify(value));
+                        this.currentSnapToken = null;
                     });
+                    this.$watch('paymentMethod', () => { this.currentSnapToken = null; });
+                    this.$watch('customerName', () => { this.currentSnapToken = null; });
+                    this.$watch('orderType', () => { this.currentSnapToken = null; });
+                    this.$watch('tableNumber', () => { this.currentSnapToken = null; });
                 },
 
                 // Fungsi Kompresi Gambar & Upload Otomatis ke ImgBB
@@ -517,20 +524,48 @@
                     if (this.isProcessing) return;
                     if (this.cart.length === 0) return;
                     
+                    if (this.currentSnapToken && this.paymentMethod === 'Midtrans') {
+                        snap.pay(this.currentSnapToken, {
+                            onSuccess: (snapResult) => {
+                                Swal.fire({ icon: 'success', title: 'Pembayaran Berhasil!', text: 'Pesanan telah dibayar.', confirmButtonColor: '#059669' }).then(() => {
+                                    this.cart = []; this.cashReceived = 0; this.customerName = ''; this.tableNumber = ''; this.transferProof = null; this.isPaymentOpen = false; this.currentSnapToken = null;
+                                    if (window.turnstile) turnstile.reset();
+                                });
+                            },
+                            onPending: (snapResult) => {
+                                Swal.fire({ icon: 'info', title: 'Menunggu Pembayaran', text: 'Silakan selesaikan pembayaran Anda.', confirmButtonColor: '#3b82f6' }).then(() => {
+                                    this.cart = []; this.cashReceived = 0; this.customerName = ''; this.tableNumber = ''; this.transferProof = null; this.isPaymentOpen = false; this.currentSnapToken = null;
+                                    if (window.turnstile) turnstile.reset();
+                                });
+                            },
+                            onError: (snapResult) => {
+                                Swal.fire({ icon: 'error', title: 'Pembayaran Gagal', text: 'Transaksi gagal diproses.', confirmButtonColor: '#ef4444' });
+                                this.currentSnapToken = null;
+                            },
+                            onClose: () => {
+                                Swal.fire({ icon: 'warning', title: 'Belum Selesai', text: 'Anda menutup pop-up sebelum menyelesaikan pembayaran. Silakan klik tombol Konfirmasi Pembayaran lagi untuk melanjutkan.', confirmButtonColor: '#f59e0b' });
+                            }
+                        });
+                        return;
+                    }
+
                     this.isProcessing = true;
                     try {
                         if (this.orderType === 'Dine In') {
                             if (!this.tableNumber || this.tableNumber.trim() === '') {
                                 Swal.fire({ icon: 'warning', title: 'Mohon Maaf', text: 'Nomor meja wajib diisi untuk pesanan Makan di Tempat (Dine In)!', confirmButtonColor: '#d97706' });
+                                this.isProcessing = false;
                                 return;
                             }
                             if (!this.customerName || this.customerName.trim() === '') {
                                 Swal.fire({ icon: 'warning', title: 'Mohon Maaf', text: 'Nama pelanggan wajib diisi untuk pesanan Makan di Tempat (Dine In)!', confirmButtonColor: '#d97706' });
+                                this.isProcessing = false;
                                 return;
                             }
                         }
                         if (this.paymentMethod === 'Tunai' && this.cashReceived < this.totalPrice) {
                             Swal.fire({ icon: 'warning', title: 'Oops...', text: 'Uang tunai kurang!', confirmButtonColor: '#d97706' });
+                            this.isProcessing = false;
                             return;
                         }
                         
@@ -539,6 +574,7 @@
                         formData.append('total_price', this.totalPrice);
                         formData.append('customer_name', this.customerName);
                         formData.append('order_type', this.orderType);
+                        formData.append('tableNumber', this.tableNumber); // Typo protection just in case
                         formData.append('table_number', this.tableNumber);
                         formData.append('payment_method', this.paymentMethod);
                         formData.append('cash_received', this.paymentMethod === 'Tunai' ? this.cashReceived : 0);
@@ -565,7 +601,6 @@
                         let result;
                         try {
                             if (response.status !== 429) { 
-                                // Clone response agar bisa dibaca dua kali
                                 const resClone = response.clone();
                                 try {
                                     result = await response.json();
@@ -580,25 +615,27 @@
                         
                         if (result.success) {
                             if (result.snap_token) {
+                                this.currentSnapToken = result.snap_token;
                                 // Buka pop-up Midtrans
                                 snap.pay(result.snap_token, {
                                     onSuccess: (snapResult) => {
                                         Swal.fire({ icon: 'success', title: 'Pembayaran Berhasil!', text: 'Pesanan telah dibayar.', confirmButtonColor: '#059669' }).then(() => {
-                                            this.cart = []; this.cashReceived = 0; this.customerName = ''; this.tableNumber = ''; this.transferProof = null; this.isPaymentOpen = false;
+                                            this.cart = []; this.cashReceived = 0; this.customerName = ''; this.tableNumber = ''; this.transferProof = null; this.isPaymentOpen = false; this.currentSnapToken = null;
                                             if (window.turnstile) turnstile.reset();
                                         });
                                     },
                                     onPending: (snapResult) => {
                                         Swal.fire({ icon: 'info', title: 'Menunggu Pembayaran', text: 'Silakan selesaikan pembayaran Anda.', confirmButtonColor: '#3b82f6' }).then(() => {
-                                            this.cart = []; this.cashReceived = 0; this.customerName = ''; this.tableNumber = ''; this.transferProof = null; this.isPaymentOpen = false;
+                                            this.cart = []; this.cashReceived = 0; this.customerName = ''; this.tableNumber = ''; this.transferProof = null; this.isPaymentOpen = false; this.currentSnapToken = null;
                                             if (window.turnstile) turnstile.reset();
                                         });
                                     },
                                     onError: (snapResult) => {
                                         Swal.fire({ icon: 'error', title: 'Pembayaran Gagal', text: 'Transaksi gagal diproses.', confirmButtonColor: '#ef4444' });
+                                        this.currentSnapToken = null;
                                     },
                                     onClose: () => {
-                                        Swal.fire({ icon: 'warning', title: 'Belum Selesai', text: 'Anda menutup pop-up sebelum menyelesaikan pembayaran.', confirmButtonColor: '#f59e0b' });
+                                        Swal.fire({ icon: 'warning', title: 'Belum Selesai', text: 'Anda menutup pop-up sebelum menyelesaikan pembayaran. Silakan klik tombol Konfirmasi Pembayaran lagi untuk melanjutkan.', confirmButtonColor: '#f59e0b' });
                                     }
                                 });
                             } else {

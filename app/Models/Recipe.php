@@ -14,9 +14,8 @@ class Recipe extends Model
         'category',
         'description',
         'image',
+        'cooking_time',
         'price',
-        
-        
     ];
 }
 

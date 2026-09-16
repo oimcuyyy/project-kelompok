@@ -90,15 +90,15 @@
                 </div>
 
                 <div>
-                    <label for="price" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
+                    <label for="cooking_time" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
                         Waktu Masak (Menit) <span class="text-rose-500">*</span>
                     </label>
                     <div class="relative">
                         <input
                             type="number"
-                            id="price"
-                            name="price"
-                            value="{{ old('price', $recipe->price) }}"
+                            id="cooking_time"
+                            name="cooking_time"
+                            value="{{ old('cooking_time', $recipe->cooking_time) }}"
                             min="1"
                             max="1440"
                             required
@@ -106,6 +106,25 @@
                             class="w-full px-4 py-3 rounded-2xl border border-[#d9c7b0] bg-[#faf5ee]/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-stone-800 text-sm font-medium transition pr-16"
                         >
                         <span class="absolute right-4 top-3 text-xs text-stone-400 font-bold pointer-events-none">Menit</span>
+                    </div>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="price" class="block text-xs font-black uppercase tracking-wider text-stone-700 mb-2">
+                        Harga (Rp) <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-3.5 text-sm font-bold text-stone-500">Rp</span>
+                        <input
+                            type="number"
+                            id="price"
+                            name="price"
+                            value="{{ old('price', $recipe->price) }}"
+                            required
+                            min="0"
+                            placeholder="15000"
+                            class="w-full bg-[#faf5ee] border border-[#d9c7b0] focus:bg-white rounded-2xl pl-12 pr-4 py-3 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+                        >
                     </div>
                 </div>
             </div>

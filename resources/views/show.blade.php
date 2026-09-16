@@ -64,7 +64,7 @@
                 </span>
                 <span class="bg-[#1c120c]/90 backdrop-blur-md text-amber-300 text-xs font-bold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 border border-amber-500/30">
                     <i class="fa-solid fa-tag text-amber-400"></i>
-                    <span>{{ $recipe->price }} </span>
+                    <span>{{ $recipe->cooking_time }} Menit</span>
                 </span>
             </div>
 

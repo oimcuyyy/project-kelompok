@@ -106,7 +106,7 @@
                             <!-- Time Badge -->
                             <span class="absolute top-3.5 right-3.5 bg-[#1c120c]/90 backdrop-blur-md text-amber-300 text-xs font-bold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5 border border-amber-500/30">
                                 <i class="fa-solid fa-tag text-amber-400"></i>
-                                <span>{{ $recipe->price }} Menit</span>
+                                <span>{{ $recipe->cooking_time }} Menit</span>
                             </span>
 
                             <!-- Category Badge -->
